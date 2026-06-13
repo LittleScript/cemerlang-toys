@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fffaf0;
+  --foreground: #2b2b2b;
+
+  /* Cemerlang Toys brand palette (derived from logo) */
+  --color-ct-teal: #2bc4c2;
+  --color-ct-teal-dark: #1a9e9c;
+  --color-ct-orange: #ff9d3d;
+  --color-ct-orange-dark: #f5821f;
+  --color-ct-blue: #4a90e2;
+  --color-ct-green: #5cb85c;
+  --color-ct-red: #e0524d;
+  --color-ct-purple: #9b59b6;
+  --color-ct-gold: #ffc93c;
+  --color-ct-cream: #fffaf0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-ct-teal: var(--color-ct-teal);
+  --color-ct-teal-dark: var(--color-ct-teal-dark);
+  --color-ct-orange: var(--color-ct-orange);
+  --color-ct-orange-dark: var(--color-ct-orange-dark);
+  --color-ct-blue: var(--color-ct-blue);
+  --color-ct-green: var(--color-ct-green);
+  --color-ct-red: var(--color-ct-red);
+  --color-ct-purple: var(--color-ct-purple);
+  --color-ct-gold: var(--color-ct-gold);
+  --color-ct-cream: var(--color-ct-cream);
+
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-poppins);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Smooth scroll for in-page anchors */
+html {
+  scroll-behavior: smooth;
+}
