@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
@@ -33,6 +34,7 @@ export default function RootLayout({
       className={`${poppins.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        <NextTopLoader color="#2bc4c2" showSpinner={false} />
         <SmoothScroll />
         <Header />
         <main className="flex-1">{children}</main>
