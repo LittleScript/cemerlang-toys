@@ -3,6 +3,7 @@ import Image from "next/image";
 import { auth, signIn } from "@/auth";
 import { SITE_NAME } from "@/lib/constants";
 import { GoogleIcon } from "@/components/icons/google-icon";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -36,13 +37,13 @@ export default async function LoginPage() {
         }}
         className="mt-8 w-full"
       >
-        <button
-          type="submit"
+        <SubmitButton
           className="flex w-full items-center justify-center gap-3 rounded-full border border-ct-teal/20 bg-white px-5 py-3 font-semibold text-ct-blue shadow-sm transition-colors hover:bg-ct-teal/5"
+          pendingLabel="Mengarahkan ke Google..."
         >
           <GoogleIcon className="h-5 w-5" />
           Masuk dengan Google
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

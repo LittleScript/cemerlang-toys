@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { CategoryIcon } from "@/components/category-icon";
 import { CategoryForm } from "@/components/admin/category-form";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { createCategory, deleteCategory } from "./actions";
 
 export default async function AdminKategoriPage(props: PageProps<"/admin/kategori">) {
@@ -66,13 +67,12 @@ export default async function AdminKategoriPage(props: PageProps<"/admin/kategor
                   await deleteCategory(category.id);
                 }}
               >
-                <button
-                  type="submit"
+                <SubmitButton
                   className="rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
                   aria-label="Hapus"
                 >
                   <Trash2 size={18} />
-                </button>
+                </SubmitButton>
               </form>
             </div>
           </div>

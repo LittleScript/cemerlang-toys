@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { cn, formatRupiah } from "@/lib/utils";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { deleteProduct, toggleProductPublished } from "./actions";
 
 const PAGE_SIZE = 20;
@@ -111,8 +112,7 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
                   await toggleProductPublished(product.id, !product.published);
                 }}
               >
-                <button
-                  type="submit"
+                <SubmitButton
                   className={cn(
                     "rounded-full px-3 py-1 text-xs font-semibold",
                     product.published
@@ -121,7 +121,7 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
                   )}
                 >
                   {product.published ? "Published" : "Draft"}
-                </button>
+                </SubmitButton>
               </form>
 
               <Link
@@ -138,13 +138,12 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
                   await deleteProduct(product.id);
                 }}
               >
-                <button
-                  type="submit"
+                <SubmitButton
                   className="rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
                   aria-label="Hapus"
                 >
                   <Trash2 size={18} />
-                </button>
+                </SubmitButton>
               </form>
             </div>
           ))

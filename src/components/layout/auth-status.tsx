@@ -3,6 +3,7 @@ import Link from "next/link";
 import { User as UserIcon, LogOut } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { cn } from "@/lib/utils";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 interface AuthStatusProps {
   variant?: "desktop" | "mobile";
@@ -88,16 +89,16 @@ export async function AuthStatus({ variant = "desktop" }: AuthStatusProps) {
           await signOut({ redirectTo: "/" });
         }}
       >
-        <button
-          type="submit"
+        <SubmitButton
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full border border-ct-teal/20 px-4 py-2 text-sm font-semibold text-ct-blue transition-colors hover:bg-ct-teal/10",
             mobile && "w-full justify-center"
           )}
+          pendingLabel="Keluar..."
         >
           <LogOut size={16} />
           Keluar
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

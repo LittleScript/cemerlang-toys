@@ -18,9 +18,14 @@ export async function submitRegistration(
     redirect("/login");
   }
 
+  const name = String(formData.get("name") ?? "").trim();
   const whatsappRaw = String(formData.get("whatsapp") ?? "");
   const address = String(formData.get("address") ?? "").trim();
   const storeName = String(formData.get("storeName") ?? "").trim();
+
+  if (!name) {
+    return { error: "Nama lengkap wajib diisi." };
+  }
 
   const whatsapp = normalizeWhatsApp(whatsappRaw);
   if (!whatsapp) {
@@ -41,6 +46,7 @@ export async function submitRegistration(
   await prisma.user.update({
     where: { id: session.user.id },
     data: {
+      name,
       whatsapp,
       address,
       storeName: storeName || null,

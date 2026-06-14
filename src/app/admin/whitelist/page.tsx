@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { WhitelistForm } from "@/components/admin/whitelist-form";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { removeWhitelistNumber } from "./actions";
 
 export default async function AdminWhitelistPage() {
@@ -42,13 +43,12 @@ export default async function AdminWhitelistPage() {
                   await removeWhitelistNumber(entry.id);
                 }}
               >
-                <button
-                  type="submit"
+                <SubmitButton
                   className="rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
                   aria-label="Hapus"
                 >
                   <Trash2 size={18} />
-                </button>
+                </SubmitButton>
               </form>
             </div>
           ))

@@ -39,6 +39,21 @@ export function RegistrationForm({ name, email, image }: RegistrationFormProps) 
       </div>
 
       <div>
+        <label htmlFor="name" className="mb-1 block font-medium text-foreground/80">
+          Nama Lengkap <span className="text-ct-orange">*</span>
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          required
+          defaultValue={name ?? ""}
+          placeholder="Nama lengkap kamu"
+          className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+        />
+      </div>
+
+      <div>
         <label htmlFor="whatsapp" className="mb-1 block font-medium text-foreground/80">
           No. WhatsApp <span className="text-ct-orange">*</span>
         </label>

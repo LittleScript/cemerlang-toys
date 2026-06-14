@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { cn } from "@/lib/utils";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 const STATUS_TABS = [
   { value: "PENDING", label: "Pending" },
@@ -84,12 +85,9 @@ export default async function AdminMemberPage(props: PageProps<"/admin/member">)
                           revalidatePath("/admin/member");
                         }}
                       >
-                        <button
-                          type="submit"
-                          className="rounded-full bg-ct-green px-4 py-2 text-sm font-semibold text-white hover:bg-ct-green/90"
-                        >
+                        <SubmitButton className="rounded-full bg-ct-green px-4 py-2 text-sm font-semibold text-white hover:bg-ct-green/90">
                           Approve
-                        </button>
+                        </SubmitButton>
                       </form>
                       <form
                         action={async () => {
@@ -102,12 +100,9 @@ export default async function AdminMemberPage(props: PageProps<"/admin/member">)
                           revalidatePath("/admin/member");
                         }}
                       >
-                        <button
-                          type="submit"
-                          className="rounded-full bg-ct-red px-4 py-2 text-sm font-semibold text-white hover:bg-ct-red/90"
-                        >
+                        <SubmitButton className="rounded-full bg-ct-red px-4 py-2 text-sm font-semibold text-white hover:bg-ct-red/90">
                           Reject
-                        </button>
+                        </SubmitButton>
                       </form>
                     </>
                   ) : null}
@@ -124,12 +119,9 @@ export default async function AdminMemberPage(props: PageProps<"/admin/member">)
                         revalidatePath("/admin/member");
                       }}
                     >
-                      <button
-                        type="submit"
-                        className="rounded-full border border-ct-orange px-4 py-2 text-sm font-semibold text-ct-orange hover:bg-ct-orange/10"
-                      >
+                      <SubmitButton className="rounded-full border border-ct-orange px-4 py-2 text-sm font-semibold text-ct-orange hover:bg-ct-orange/10">
                         Revoke
-                      </button>
+                      </SubmitButton>
                     </form>
                   ) : null}
 
@@ -145,12 +137,9 @@ export default async function AdminMemberPage(props: PageProps<"/admin/member">)
                         revalidatePath("/admin/member");
                       }}
                     >
-                      <button
-                        type="submit"
-                        className="rounded-full bg-ct-green px-4 py-2 text-sm font-semibold text-white hover:bg-ct-green/90"
-                      >
+                      <SubmitButton className="rounded-full bg-ct-green px-4 py-2 text-sm font-semibold text-white hover:bg-ct-green/90">
                         Approve
-                      </button>
+                      </SubmitButton>
                     </form>
                   ) : null}
                 </div>
