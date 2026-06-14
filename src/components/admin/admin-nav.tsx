@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Tags, ShieldCheck, Users } from "lucide-react";
+import { LayoutDashboard, LayoutTemplate, Package, Tags, ShieldCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ADMIN_NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/produk", label: "Produk", icon: Package },
   { href: "/admin/kategori", label: "Kategori", icon: Tags },
+  { href: "/admin/konten", label: "Konten", icon: LayoutTemplate },
   { href: "/admin/whitelist", label: "Whitelist WA", icon: ShieldCheck },
   { href: "/admin/member", label: "Member", icon: Users },
 ] as const;

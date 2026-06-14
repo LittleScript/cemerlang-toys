@@ -141,6 +141,21 @@ model ProductVariant {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
+// --- Editable homepage content blocks --------------------------------------
+
+model SiteContent {
+  id String @id @default("default")
+
+  heroBadge    String @default("Halo, CT Squad! 👋")
+  heroTitle    String @default("Grosir Mainan Anak, Harga Bersahabat untuk Reseller")
+  heroSubtitle String @default("Cemerlang Toys menyediakan ratusan pilihan mainan anak ekonomis & jadul. Daftar gratis untuk membuka harga, deskripsi lengkap, dan pesan langsung lewat WhatsApp.")
+
+  ctaTitle    String @default("Gabung CT Squad Sekarang")
+  ctaSubtitle String @default("Daftar dengan akun Google, lengkapi data toko/usaha Anda, dan dapatkan akses penuh ke harga grosir & pemesanan langsung via WhatsApp.")
+
+  updatedAt DateTime @updatedAt
+}
+
 // --- Whitelist WA (auto-approve) -------------------------------------------
 
 model WhitelistWA {

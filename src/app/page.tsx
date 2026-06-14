@@ -6,9 +6,10 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { CategoryCard } from "@/components/category-card";
 import { ProductCard } from "@/components/product-card";
 import { SITE_NAME } from "@/lib/constants";
+import { DEFAULT_SITE_CONTENT } from "@/lib/site-content";
 
 export default async function Home() {
-  const [categories, products] = await Promise.all([
+  const [categories, products, siteContent] = await Promise.all([
     prisma.category.findMany({
       orderBy: { order: "asc" },
     }),
@@ -18,7 +19,10 @@ export default async function Home() {
       take: 8,
       include: { images: { orderBy: { order: "asc" }, take: 1 }, category: true },
     }),
+    prisma.siteContent.findUnique({ where: { id: "default" } }),
   ]);
+
+  const content = siteContent ?? DEFAULT_SITE_CONTENT;
 
   return (
     <div className="flex flex-col">
@@ -26,18 +30,15 @@ export default async function Home() {
       <section className="relative overflow-hidden bg-gradient-to-br from-ct-teal/15 via-ct-cream to-ct-orange/15">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:items-center md:py-24 lg:px-8">
           <FadeIn>
-            <p className="mb-3 inline-block rounded-full bg-ct-orange/15 px-4 py-1 text-sm font-semibold text-ct-orange-dark">
-              Halo, CT Squad! 👋
-            </p>
+            {content.heroBadge ? (
+              <p className="mb-3 inline-block rounded-full bg-ct-orange/15 px-4 py-1 text-sm font-semibold text-ct-orange-dark">
+                {content.heroBadge}
+              </p>
+            ) : null}
             <h1 className="font-heading text-4xl font-extrabold leading-tight text-ct-blue sm:text-5xl">
-              Grosir Mainan Anak,{" "}
-              <span className="text-ct-teal-dark">Harga Bersahabat</span> untuk Reseller
+              {content.heroTitle}
             </h1>
-            <p className="mt-4 max-w-md text-lg text-foreground/70">
-              {SITE_NAME} menyediakan ratusan pilihan mainan anak ekonomis &amp; jadul.
-              Daftar gratis untuk membuka harga, deskripsi lengkap, dan pesan langsung
-              lewat WhatsApp.
-            </p>
+            <p className="mt-4 max-w-md text-lg text-foreground/70">{content.heroSubtitle}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/login"
@@ -124,13 +125,8 @@ export default async function Home() {
       {/* CTA */}
       <section className="bg-ct-blue">
         <FadeIn className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
-          <h2 className="font-heading text-3xl font-bold text-white">
-            Gabung CT Squad Sekarang
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-white/80">
-            Daftar dengan akun Google, lengkapi data toko/usaha Anda, dan dapatkan akses
-            penuh ke harga grosir &amp; pemesanan langsung via WhatsApp.
-          </p>
+          <h2 className="font-heading text-3xl font-bold text-white">{content.ctaTitle}</h2>
+          <p className="mx-auto mt-3 max-w-xl text-white/80">{content.ctaSubtitle}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               href="/login"
