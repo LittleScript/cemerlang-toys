@@ -4,6 +4,7 @@ import NextTopLoader from "nextjs-toploader";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
+import { SessionProvider } from "@/components/providers/session-provider";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -36,9 +37,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans">
         <NextTopLoader color="#2bc4c2" showSpinner={false} />
         <SmoothScroll />
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SessionProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </SessionProvider>
       </body>
     </html>
   );

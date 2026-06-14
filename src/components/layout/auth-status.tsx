@@ -1,17 +1,31 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { User as UserIcon, LogOut } from "lucide-react";
-import { auth, signOut } from "@/auth";
+import { User as UserIcon, LogOut, Loader2 } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { SubmitButton } from "@/components/ui/submit-button";
 
 interface AuthStatusProps {
   variant?: "desktop" | "mobile";
 }
 
-export async function AuthStatus({ variant = "desktop" }: AuthStatusProps) {
-  const session = await auth();
+export function AuthStatus({ variant = "desktop" }: AuthStatusProps) {
+  const { data: session, status } = useSession();
+  const [signingOut, setSigningOut] = useState(false);
   const mobile = variant === "mobile";
+
+  if (status === "loading") {
+    return (
+      <div
+        className={cn(
+          "h-9 w-28 animate-pulse rounded-full bg-ct-teal/10",
+          mobile && "w-full"
+        )}
+      />
+    );
+  }
 
   if (!session?.user) {
     return (
@@ -83,23 +97,29 @@ export async function AuthStatus({ variant = "desktop" }: AuthStatusProps) {
         </Link>
       )}
 
-      <form
-        action={async () => {
-          "use server";
-          await signOut({ redirectTo: "/" });
+      <button
+        type="button"
+        disabled={signingOut}
+        onClick={() => {
+          setSigningOut(true);
+          void signOut({ redirectTo: "/" });
         }}
+        aria-busy={signingOut}
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-full border border-ct-teal/20 px-4 py-2 text-sm font-semibold text-ct-blue transition-colors hover:bg-ct-teal/10",
+          signingOut && "opacity-60 cursor-wait",
+          mobile && "w-full justify-center"
+        )}
       >
-        <SubmitButton
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-full border border-ct-teal/20 px-4 py-2 text-sm font-semibold text-ct-blue transition-colors hover:bg-ct-teal/10",
-            mobile && "w-full justify-center"
-          )}
-          pendingLabel="Keluar..."
-        >
-          <LogOut size={16} />
-          Keluar
-        </SubmitButton>
-      </form>
+        {signingOut ? (
+          <Loader2 size={16} className="animate-spin" />
+        ) : (
+          <>
+            <LogOut size={16} />
+            Keluar
+          </>
+        )}
+      </button>
     </div>
   );
 }
