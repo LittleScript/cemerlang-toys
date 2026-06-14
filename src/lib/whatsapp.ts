@@ -1,30 +1,35 @@
 import { STORE_WHATSAPP } from "./constants";
 import { formatRupiah } from "./utils";
 
-export function buildOrderMessage({
+export function buildCartOrderMessage({
   customerName,
-  productName,
-  variantName,
-  price,
-  productUrl,
+  items,
+  total,
+  showPrices,
 }: {
   customerName: string;
-  productName: string;
-  variantName?: string;
-  price: number;
-  productUrl: string;
+  items: { name: string; variantName?: string; price: number; quantity: number }[];
+  total: number;
+  showPrices: boolean;
 }) {
-  const lines = [
-    `Halo CT Rangers, saya ${customerName} ingin pesan:`,
-    `- Produk: ${productName}`,
-  ];
+  const lines = [`Halo CT Rangers, saya ${customerName} ingin pesan:`, ""];
 
-  if (variantName) {
-    lines.push(`- Varian: ${variantName}`);
+  items.forEach((item, index) => {
+    const label = item.variantName ? `${item.name} (${item.variantName})` : item.name;
+    lines.push(`${index + 1}. ${label}`);
+    if (showPrices) {
+      lines.push(`   ${item.quantity} x ${formatRupiah(item.price)} = ${formatRupiah(item.price * item.quantity)}`);
+    } else {
+      lines.push(`   Jumlah: ${item.quantity}`);
+    }
+  });
+
+  lines.push("");
+  if (showPrices) {
+    lines.push(`Total: ${formatRupiah(total)}`);
+  } else {
+    lines.push("Mohon info harga & totalnya ya. Terima kasih!");
   }
-
-  lines.push(`- Harga: ${formatRupiah(price)}`);
-  lines.push(`- Link produk: ${productUrl}`);
 
   return lines.join("\n");
 }

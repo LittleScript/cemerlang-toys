@@ -79,10 +79,13 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
           {products.map((product, index) => (
             <FadeIn key={product.id} delay={(index % PAGE_SIZE) * 0.03}>
               <ProductCard
+                productId={product.id}
                 slug={product.slug}
                 name={product.name}
                 categoryName={product.category.name}
                 imageUrl={product.images[0]?.url}
+                price={product.price}
+                discountPrice={product.discountPrice}
                 stockStatus={product.stockStatus}
               />
             </FadeIn>

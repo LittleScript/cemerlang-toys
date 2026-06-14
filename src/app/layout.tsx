@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { SessionProvider } from "@/components/providers/session-provider";
+import { CartProvider } from "@/lib/cart-context";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -38,9 +39,11 @@ export default function RootLayout({
         <NextTopLoader color="#2bc4c2" showSpinner={false} />
         <SmoothScroll />
         <SessionProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <CartProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </CartProvider>
         </SessionProvider>
       </body>
     </html>

@@ -55,18 +55,19 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
             </span>
           </div>
 
-          {isMember ? (
-            <ProductOrderPanel
-              productName={product.name}
-              basePrice={product.price ?? 0}
-              discountPrice={product.discountPrice}
-              variants={product.variants}
-              outOfStock={outOfStock}
-              customerName={session?.user?.name ?? "(Nama Anda)"}
-            />
-          ) : (
-            <ProductAccessCta loggedIn={!!session} />
-          )}
+          <ProductOrderPanel
+            productId={product.id}
+            slug={product.slug}
+            productName={product.name}
+            imageUrl={product.images[0]?.url}
+            basePrice={product.price ?? 0}
+            discountPrice={product.discountPrice}
+            variants={product.variants}
+            outOfStock={outOfStock}
+            isMember={isMember}
+          />
+
+          {!isMember ? <ProductAccessCta loggedIn={!!session} /> : null}
 
           {isMember && product.description ? (
             <div>

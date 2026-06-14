@@ -8,8 +8,9 @@ export function ProductAccessCta({ loggedIn }: { loggedIn: boolean }) {
         <Lock size={20} />
       </span>
       <p className="text-foreground/70">
-        Harga, deskripsi, varian, dan pemesanan via WhatsApp hanya tersedia untuk member yang
-        sudah diverifikasi.
+        Harga dan deskripsi lengkap produk hanya tersedia untuk member yang sudah diverifikasi.
+        Anda tetap bisa memesan produk ini — harga akan dikonfirmasi oleh CT Rangers via
+        WhatsApp.
       </p>
       <Link
         href="/login"

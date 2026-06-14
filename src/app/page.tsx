@@ -112,10 +112,13 @@ export default async function Home() {
             {products.map((product, index) => (
               <FadeIn key={product.id} delay={index * 0.04}>
                 <ProductCard
+                  productId={product.id}
                   slug={product.slug}
                   name={product.name}
                   categoryName={product.category.name}
                   imageUrl={product.images[0]?.url}
+                  price={product.price}
+                  discountPrice={product.discountPrice}
                   stockStatus={product.stockStatus}
                 />
               </FadeIn>

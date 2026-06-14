@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
 import { AuthStatus } from "./auth-status";
+import { CartLink } from "./cart-link";
 import { MobileNav } from "./mobile-nav";
 
 export async function Header() {
@@ -34,11 +35,15 @@ export async function Header() {
           ))}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-2 md:flex">
+          <CartLink />
           <AuthStatus />
         </div>
 
-        <MobileNav authSlot={<AuthStatus variant="mobile" />} />
+        <div className="flex items-center gap-1 md:hidden">
+          <CartLink />
+          <MobileNav authSlot={<AuthStatus variant="mobile" />} />
+        </div>
       </div>
     </header>
   );

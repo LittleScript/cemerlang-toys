@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: cemerlang-toys-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cemerlang
+      POSTGRES_PASSWORD: cemerlang
+      POSTGRES_DB: cemerlang_toys
+    ports:
+      - "5433:5432"
+    volumes:
+      - cemerlang_toys_db_data:/var/lib/postgresql
+
+volumes:
+  cemerlang_toys_db_data:
