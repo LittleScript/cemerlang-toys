@@ -45,3 +45,17 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* Instant "pressed" feedback for every button/link, independent of how
+   long the actual action/navigation takes. */
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:active,
+button:not(:disabled):active {
+  transform: scale(0.96);
+  opacity: 0.85;
+  transition: transform 0.05s ease-out, opacity 0.05s ease-out;
+}

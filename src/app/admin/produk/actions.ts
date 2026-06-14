@@ -2,36 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 
 export interface ProductFormState {
   error?: string;
-}
-
-export interface UploadImageResult {
-  url?: string;
-  error?: string;
-}
-
-export async function uploadProductImage(formData: FormData): Promise<UploadImageResult> {
-  await requireAdmin();
-
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    return { error: "File tidak valid." };
-  }
-  if (!file.type.startsWith("image/")) {
-    return { error: "File harus berupa gambar." };
-  }
-
-  const blob = await put(`products/${file.name}`, file, {
-    access: "public",
-    addRandomSuffix: true,
-  });
-
-  return { url: blob.url };
 }
 
 function slugify(value: string) {

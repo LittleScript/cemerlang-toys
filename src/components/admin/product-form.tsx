@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
-import { uploadProductImage, type ProductFormState } from "@/app/admin/produk/actions";
+import type { ProductFormState } from "@/app/admin/produk/actions";
 
 const AGE_RANGES = ["0-2", "3-5", "6-8", "9-12", "12+"] as const;
 
@@ -56,16 +57,16 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
     setUploadError(null);
     setUploadingIndex(index);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    const result = await uploadProductImage(formData);
-
-    if (result.url) {
+    try {
+      const blob = await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/upload",
+      });
       setImages((rows) =>
-        rows.map((row, i) => (i === index ? { ...row, url: result.url! } : row))
+        rows.map((row, i) => (i === index ? { ...row, url: blob.url } : row))
       );
-    } else {
-      setUploadError(result.error ?? "Gagal mengunggah foto.");
+    } catch {
+      setUploadError("Gagal mengunggah foto.");
     }
 
     setUploadingIndex(null);
