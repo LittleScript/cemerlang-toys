@@ -112,6 +112,7 @@ export async function createProduct(
 
   revalidatePath("/admin/produk");
   revalidatePath("/katalog");
+  revalidatePath("/");
   redirect("/admin/produk");
 }
 
@@ -156,6 +157,7 @@ export async function updateProduct(
   revalidatePath("/admin/produk");
   revalidatePath("/katalog");
   revalidatePath(`/produk/${input.slug}`);
+  revalidatePath("/");
   redirect("/admin/produk");
 }
 
@@ -164,6 +166,7 @@ export async function deleteProduct(id: string) {
   await prisma.product.delete({ where: { id } });
   revalidatePath("/admin/produk");
   revalidatePath("/katalog");
+  revalidatePath("/");
 }
 
 export async function toggleProductPublished(id: string, published: boolean) {
@@ -171,4 +174,5 @@ export async function toggleProductPublished(id: string, published: boolean) {
   await prisma.product.update({ where: { id }, data: { published } });
   revalidatePath("/admin/produk");
   revalidatePath("/katalog");
+  revalidatePath("/");
 }

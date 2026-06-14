@@ -8,6 +8,8 @@ import { ProductCard } from "@/components/product-card";
 import { SITE_NAME } from "@/lib/constants";
 import { DEFAULT_SITE_CONTENT } from "@/lib/site-content";
 
+export const revalidate = 60;
+
 export default async function Home() {
   const [categories, products, siteContent] = await Promise.all([
     prisma.category.findMany({
