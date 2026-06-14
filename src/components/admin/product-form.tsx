@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
-import type { ProductFormState } from "@/app/admin/produk/actions";
+import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
+import { uploadProductImage, type ProductFormState } from "@/app/admin/produk/actions";
 
 const AGE_RANGES = ["0-2", "3-5", "6-8", "9-12", "12+"] as const;
 
@@ -44,6 +44,32 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
   const [state, formAction, pending] = useActionState(action, initialState);
   const [images, setImages] = useState<ImageRow[]>(defaultValues?.images ?? []);
   const [variants, setVariants] = useState<VariantRow[]>(defaultValues?.variants ?? []);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleImageFile(index: number, file: File) {
+    if (!file.type.startsWith("image/")) {
+      setUploadError("File harus berupa gambar.");
+      return;
+    }
+
+    setUploadError(null);
+    setUploadingIndex(index);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    const result = await uploadProductImage(formData);
+
+    if (result.url) {
+      setImages((rows) =>
+        rows.map((row, i) => (i === index ? { ...row, url: result.url! } : row))
+      );
+    } else {
+      setUploadError(result.error ?? "Gagal mengunggah foto.");
+    }
+
+    setUploadingIndex(null);
+  }
 
   return (
     <form action={formAction} className="space-y-6">
@@ -199,35 +225,77 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
           </button>
         </div>
 
+        {uploadError ? (
+          <p className="mb-2 text-sm font-medium text-ct-red">{uploadError}</p>
+        ) : null}
+
         <div className="space-y-2">
           {images.map((image, index) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="url"
-                placeholder="https://..."
-                value={image.url}
-                onChange={(e) =>
-                  setImages((rows) =>
-                    rows.map((row, i) => (i === index ? { ...row, url: e.target.value } : row))
-                  )
-                }
-                className="flex-[2] rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Teks alternatif (opsional)"
-                value={image.alt}
-                onChange={(e) =>
-                  setImages((rows) =>
-                    rows.map((row, i) => (i === index ? { ...row, alt: e.target.value } : row))
-                  )
-                }
-                className="flex-1 rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
-              />
+            <div key={index} className="flex gap-2 rounded-lg border border-ct-teal/10 p-2">
+              <label
+                className="relative flex h-20 w-20 shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-ct-teal/30 bg-ct-teal/5 text-center text-[11px] text-foreground/50 hover:border-ct-teal/50"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) void handleImageFile(index, file);
+                }}
+              >
+                {image.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={image.url} alt={image.alt || ""} className="h-full w-full object-cover" />
+                ) : (
+                  <>
+                    <ImagePlus size={18} />
+                    <span className="mt-1 px-1">Seret / klik</span>
+                  </>
+                )}
+                {uploadingIndex === index ? (
+                  <span className="absolute inset-0 flex items-center justify-center bg-white/70">
+                    <Loader2 size={20} className="animate-spin text-ct-teal" />
+                  </span>
+                ) : null}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleImageFile(index, file);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+
+              <div className="flex flex-1 flex-col gap-2">
+                <input
+                  type="url"
+                  placeholder="atau tempel link gambar https://..."
+                  value={image.url}
+                  onChange={(e) =>
+                    setImages((rows) =>
+                      rows.map((row, i) => (i === index ? { ...row, url: e.target.value } : row))
+                    )
+                  }
+                  className="rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 text-sm focus:border-ct-teal focus:outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Teks alternatif (opsional)"
+                  value={image.alt}
+                  onChange={(e) =>
+                    setImages((rows) =>
+                      rows.map((row, i) => (i === index ? { ...row, alt: e.target.value } : row))
+                    )
+                  }
+                  className="rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 text-sm focus:border-ct-teal focus:outline-none"
+                />
+              </div>
+
               <button
                 type="button"
                 onClick={() => setImages((rows) => rows.filter((_, i) => i !== index))}
-                className="rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
+                className="self-start rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
                 aria-label="Hapus foto"
               >
                 <Trash2 size={18} />
