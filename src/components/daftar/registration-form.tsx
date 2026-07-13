@@ -47,8 +47,7 @@ export function RegistrationForm({ name, email, image }: RegistrationFormProps) 
           name="name"
           type="text"
           required
-          defaultValue={name ?? ""}
-          placeholder="Nama lengkap kamu"
+          placeholder="Nama lengkap kamu (sesuai KTP/identitas)"
           className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
         />
       </div>

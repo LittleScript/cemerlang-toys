@@ -15,11 +15,14 @@ export default function KeranjangPage() {
 
   const handleCheckout = () => {
     const message = buildCartOrderMessage({
-      customerName: session?.user?.name ?? "(Nama Anda)",
+      customerName: session?.user?.name
+        ? session.user.name
+        : "(Nama Anda — lengkapi profil di halaman akun)",
       items: items.map((item) => ({
         name: item.name,
         variantName: item.variantName,
         price: item.price,
+        unit: item.unit,
         quantity: item.quantity,
       })),
       total: totalPrice,
@@ -88,7 +91,12 @@ export default function KeranjangPage() {
                   <p className="text-sm text-foreground/60">Varian: {item.variantName}</p>
                 ) : null}
                 {isMember ? (
-                  <p className="mt-1 font-semibold text-ct-blue">{formatRupiah(item.price)}</p>
+                  <p className="mt-1 font-semibold text-ct-blue">
+                    {formatRupiah(item.price)}
+                    {item.unit ? (
+                      <span className="font-normal text-foreground/60"> / {item.unit}</span>
+                    ) : null}
+                  </p>
                 ) : null}
               </div>
 

@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cemerlang Toys Medan
 
-## Getting Started
+Supplier mainan anak terpercaya sejak 2002 — grosir, harga bersahabat untuk reseller & toko mainan di seluruh Indonesia.
 
-First, run the development server:
+**Website:** [cemerlang-toys.vercel.app](https://cemerlang-toys.vercel.app)  
+**Stack:** Next.js 16 + React 19 + Prisma 7 + PostgreSQL (Neon / Docker self-host)  
+**Auth:** NextAuth v5 (Google OAuth, database sessions)  
+**Styling:** Tailwind CSS v4 + Framer Motion  
+
+---
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # isi AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, DATABASE_URL
+npx prisma generate
+npx prisma db push
+npx tsx prisma/seed.ts
+npm run dev                   # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Docker Self-Host
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+docker compose up -d
+# App: http://localhost:3001
+# DB:  postgresql://cemerlang:cemerlang@localhost:5433/cemerlang_toys
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Next.js dev server |
+| `npm run build` | Production build |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run typecheck` | Run TypeScript type-checking |
+| `npm test` | Run Vitest test suite |
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/           # Next.js App Router pages & API routes
+│   ├── admin/     # Admin panel (produk, kategori, konten, galeri, member, whitelist)
+│   ├── api/       # Route handlers (upload, auth, ai-suggest, categories)
+│   ├── katalog/   # Product catalog with filtering
+│   ├── keranjang/ # Cart page
+│   ├── produk/    # Product detail pages
+│   └── tentang/   # About page
+├── components/    # React components (layout, product, admin, catalog, ui)
+├── lib/           # Business logic & utilities
+│   ├── cart-context.tsx   # Cart state (localStorage-persisted)
+│   ├── whatsapp.ts        # WhatsApp order message builder
+│   ├── phone.ts           # Phone number normalization
+│   ├── admin.ts           # Admin guard (requireAdmin, requireAdminApi)
+│   ├── utils.ts           # cn, formatRupiah, slugify
+│   └── constants.ts       # Store config
+├── types/         # TypeScript type augmentations (next-auth)
+└── generated/     # Generated Prisma client
+prisma/
+├── schema.prisma  # Database schema (User, Product, Category, etc.)
+└── seed.ts        # Seed data (12 categories, 24 products)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Architecture Decisions
 
-## Deploy on Vercel
+- **Ordering via WhatsApp** — no payment gateway; order links open WhatsApp chat with pre-filled message
+- **Member-only pricing** — prices gated behind approved member status; non-members can still order (prices confirmed by CT Rangers)
+- **Editable content** — homepage hero, about page, and footer content editable via admin panel
+- **Dual deployment** — Vercel (production) + Docker Compose (local self-host)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private — © Cemerlang Toys Medan

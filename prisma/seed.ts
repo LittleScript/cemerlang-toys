@@ -27,7 +27,8 @@ const brandColors = ["2bc4c2", "ff9d3d", "4a90e2", "5cb85c", "e0524d", "9b59b6",
 
 function placeholder(seed: string, label: string) {
   const color = brandColors[Math.abs(hashCode(seed)) % brandColors.length];
-  return `https://placehold.co/600x600/${color}/ffffff?text=${encodeURIComponent(label)}`;
+  // Use PNG format to avoid SVG XSS risk (C-6).
+  return `https://placehold.co/600x600/${color}/ffffff.png?text=${encodeURIComponent(label)}`;
 }
 
 function hashCode(str: string) {
@@ -45,7 +46,7 @@ type SeedProduct = {
   price: number;
   discountPrice?: number;
   stockStatus?: "IN_STOCK" | "OUT_OF_STOCK";
-  ageRange?: "0-2" | "3-5" | "6-8" | "9-12" | "12+";
+  ageRange?: "0+" | "1+" | "2+" | "3+" | "4+" | "6+" | "8+" | "10+" | "12+";
   variants?: { name: string; price?: number; stock: number }[];
 };
 
@@ -56,7 +57,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Mobil truk container dengan sistem friction (tarik mundur lalu lepas), bodi plastik tebal, cocok untuk anak usia 3 tahun ke atas.",
       price: 35000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
     {
       name: "Diecast Mobil Balap Mini",
@@ -64,7 +65,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
         "Diecast mobil balap skala mini dengan berbagai pilihan warna ceria, bahan logam ringan dan roda karet halus.",
       price: 25000,
       discountPrice: 20000,
-      ageRange: "6-8",
+      ageRange: "6+",
       variants: [
         { name: "Merah", stock: 40 },
         { name: "Biru", stock: 35 },
@@ -78,14 +79,14 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Robot mainan yang bisa diubah jadi mobil, bahan plastik keras dengan sambungan engsel yang kuat.",
       price: 45000,
-      ageRange: "6-8",
+      ageRange: "6+",
     },
     {
       name: "Action Figure Superhero Set",
       description:
         "Set 4 action figure superhero dengan sendi yang bisa digerakkan, tinggi sekitar 12cm per figure.",
       price: 55000,
-      ageRange: "6-8",
+      ageRange: "6+",
     },
   ],
   "boneka-plushie": [
@@ -94,7 +95,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Boneka beruang bahan rasfur lembut, isi dakron padat, ukuran sedang cocok untuk hadiah.",
       price: 48000,
-      ageRange: "0-2",
+      ageRange: "0+",
     },
     {
       name: "Plushie Karakter Kartun",
@@ -102,7 +103,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
         "Boneka karakter kartun populer, bahan halus dan aman untuk anak, tersedia beberapa karakter.",
       price: 38000,
       stockStatus: "OUT_OF_STOCK",
-      ageRange: "0-2",
+      ageRange: "0+",
     },
   ],
   "edukasi-puzzle": [
@@ -111,14 +112,14 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Puzzle kayu bergambar angka dan huruf untuk melatih motorik halus dan pengenalan dasar anak.",
       price: 22000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
     {
       name: "Mainan Edukasi Menara Pelangi",
       description:
         "Menara susun pelangi dari plastik tebal, melatih koordinasi dan pengenalan warna & ukuran.",
       price: 30000,
-      ageRange: "0-2",
+      ageRange: "0+",
     },
   ],
   "masak-masakan": [
@@ -127,7 +128,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Set alat masak mini lengkap dengan panci, wajan, dan peralatan plastik warna-warni.",
       price: 42000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
     {
       name: "Kompor Mainan Plastik",
@@ -135,7 +136,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
         "Kompor mainan dengan suara dan lampu, dilengkapi panci dan tutup, bahan plastik aman.",
       price: 65000,
       discountPrice: 55000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
   ],
   "outdoor-olahraga": [
@@ -144,14 +145,14 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Bola plastik ringan bergambar karakter, cocok untuk bermain di dalam maupun luar ruangan.",
       price: 15000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
     {
       name: "Lompat Tali Karakter",
       description:
         "Tali lompat dengan pegangan karakter lucu, panjang dapat disesuaikan.",
       price: 18000,
-      ageRange: "6-8",
+      ageRange: "6+",
     },
   ],
   "senjata-mainan": [
@@ -160,14 +161,14 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Pistol air ukuran jumbo dengan jarak tembak jauh, tangki kapasitas besar, bahan plastik tebal.",
       price: 28000,
-      ageRange: "6-8",
+      ageRange: "6+",
     },
     {
       name: "Pedang Ksatria Plastik",
       description:
         "Pedang mainan bahan plastik lentur dan aman, lengkap dengan sarung pedang.",
       price: 20000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
   ],
   "bayi-balita": [
@@ -176,14 +177,14 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Mainan kerincingan bayi dengan suara musik lembut dan warna-warna cerah, bahan aman untuk digigit.",
       price: 25000,
-      ageRange: "0-2",
+      ageRange: "0+",
     },
     {
       name: "Mainan Gantung Box Bayi",
       description:
         "Mainan gantung untuk box bayi dengan berbagai bentuk hewan lucu dan lonceng kecil.",
       price: 32000,
-      ageRange: "0-2",
+      ageRange: "0+",
     },
   ],
   "klasik-jadul": [
@@ -192,14 +193,14 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Gasing kayu klasik dengan tali pemutar, mainan jadul yang melatih ketangkasan.",
       price: 12000,
-      ageRange: "6-8",
+      ageRange: "6+",
     },
     {
       name: "Yoyo Klasik Warna-warni",
       description:
         "Yoyo plastik klasik dengan berbagai pilihan warna, cocok untuk nostalgia bermain.",
       price: 10000,
-      ageRange: "6-8",
+      ageRange: "6+",
     },
   ],
   "balon-pesta": [
@@ -208,7 +209,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Set balon latex 100 pcs aneka warna, cocok untuk dekorasi pesta ulang tahun.",
       price: 17000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
     {
       name: "Confetti Popper Pesta",
@@ -216,7 +217,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
         "Confetti popper untuk perayaan, sekali tarik mengeluarkan confetti warna-warni.",
       price: 14000,
       stockStatus: "OUT_OF_STOCK",
-      ageRange: "6-8",
+      ageRange: "6+",
     },
   ],
   "slime-sensorik": [
@@ -225,7 +226,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Slime dengan tambahan glitter, tekstur lembut dan tidak lengket di tangan.",
       price: 13000,
-      ageRange: "6-8",
+      ageRange: "6+",
     },
     {
       name: "Mainan Squishy Karakter",
@@ -233,7 +234,7 @@ const productsByCategory: Record<string, SeedProduct[]> = {
         "Mainan squishy lembut dengan berbagai bentuk karakter lucu, slow rebound.",
       price: 16000,
       discountPrice: 12000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
   ],
   "lainnya-grosir": [
@@ -242,14 +243,14 @@ const productsByCategory: Record<string, SeedProduct[]> = {
       description:
         "Paket campuran mainan anak isi 50pcs aneka jenis, cocok untuk reseller dan hadiah event.",
       price: 150000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
     {
       name: "Mainan Mini Hadiah Ulang Tahun",
       description:
         "Mainan mini aneka bentuk untuk goodie bag atau hadiah ulang tahun, dijual per pack.",
       price: 45000,
-      ageRange: "3-5",
+      ageRange: "3+",
     },
   ],
 };

@@ -10,6 +10,7 @@ export interface CartItem {
   variantId?: string;
   variantName?: string;
   price: number;
+  unit?: string;
   imageUrl?: string | null;
   quantity: number;
   maxQuantity?: number;
@@ -46,6 +47,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // ignore invalid cart data
     }
     setHydrated(true);
+
+    // Cross-tab sync (L-10): listen for storage events from other tabs
+    function handleStorage(e: StorageEvent) {
+      if (e.key === STORAGE_KEY) {
+        try {
+          if (e.newValue) setItems(JSON.parse(e.newValue));
+          else setItems([]);
+        } catch {
+          // ignore
+        }
+      }
+    }
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   useEffect(() => {

@@ -7,6 +7,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [Google],
   session: { strategy: "database" },
+  trustHost: process.env.AUTH_TRUST_HOST === "true",
   pages: {
     signIn: "/login",
   },
@@ -23,16 +24,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   events: {
     async createUser({ user }) {
-      const adminEmails = (process.env.ADMIN_EMAILS ?? "")
-        .split(",")
-        .map((email) => email.trim().toLowerCase())
-        .filter(Boolean);
+      try {
+        const adminEmails = (process.env.ADMIN_EMAILS ?? "")
+          .split(",")
+          .map((email) => email.trim().toLowerCase())
+          .filter(Boolean);
 
-      if (user.email && adminEmails.includes(user.email.toLowerCase())) {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { role: "ADMIN", status: "APPROVED" },
-        });
+        if (user.email && adminEmails.includes(user.email.toLowerCase())) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { role: "ADMIN", status: "APPROVED" },
+          });
+        }
+      } catch (error) {
+        console.error("createUser event failed:", error);
+        // Don't block sign-up — admin can manually approve later
       }
     },
   },

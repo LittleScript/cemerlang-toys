@@ -38,6 +38,9 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([whatsapp])
 }
 
 model Account {
@@ -101,10 +104,14 @@ model Product {
   price         Int?
   discountPrice Int?
 
+  // Satuan harga, mis. "pcs" | "pack" | "lusin" | "set" | "renteng" | "box"
+  unit String?
+
   // "IN_STOCK" | "OUT_OF_STOCK"
   stockStatus String @default("IN_STOCK")
 
-  // "0-2" | "3-5" | "6-8" | "9-12" | "12+"
+  // Threshold format: "0+" | "1+" | "2+" | "3+" | "4+" | "6+" | "8+" | "10+" | "12+"
+  // See src/lib/constants.ts AGE_RANGES for the canonical list.
   ageRange String?
 
   published Boolean @default(true)
@@ -117,6 +124,9 @@ model Product {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([published])
+  @@index([categoryId])
 }
 
 model ProductImage {
@@ -127,6 +137,8 @@ model ProductImage {
 
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 model ProductVariant {
@@ -139,6 +151,8 @@ model ProductVariant {
 
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 // --- Editable homepage content blocks --------------------------------------
@@ -148,12 +162,91 @@ model SiteContent {
 
   heroBadge    String @default("Halo, CT Squad! 👋")
   heroTitle    String @default("Grosir Mainan Anak, Harga Bersahabat untuk Reseller")
-  heroSubtitle String @default("Cemerlang Toys menyediakan ratusan pilihan mainan anak ekonomis & jadul. Daftar gratis untuk membuka harga, deskripsi lengkap, dan pesan langsung lewat WhatsApp.")
+  heroSubtitle String @default("Cemerlang Toys Medan menyediakan ribuan pilihan mainan anak ekonomis & jadul. Daftar gratis untuk membuka harga, deskripsi lengkap, dan pesan langsung lewat WhatsApp.")
 
   ctaTitle    String @default("Gabung CT Squad Sekarang")
   ctaSubtitle String @default("Daftar dengan akun Google, lengkapi data toko/usaha Anda, dan dapatkan akses penuh ke harga grosir & pemesanan langsung via WhatsApp.")
 
+  footerTagline  String @default("Grosir mainan anak, harga bersahabat untuk reseller")
+  footerGreeting String @default("Halo, CT Squad! 👋 Daftar untuk lihat harga & pesan langsung via WhatsApp.")
+
   updatedAt DateTime @updatedAt
+}
+
+// --- Editable Tentang Kami page content -------------------------------------
+
+model AboutContent {
+  id String @id @default("default")
+
+  heroBadge String @default("Sejak 2002 • Generasi ke-2")
+
+  ceritaParagraph1 String @default("Semua berawal dari sebuah toko kecil di tahun 2002, dengan satu misi sederhana: menghadirkan mainan anak yang seru dengan harga bersahabat, terutama untuk teman-teman pedagang yang ingin menjualnya kembali.") @db.Text
+  ceritaParagraph2 String @default("Dari rak yang awalnya hanya berisi beberapa jenis mainan, perlahan tapi pasti kami terus menambah variasi, menjalin kepercayaan dengan reseller dari berbagai kota, dan belajar dari setiap tren mainan yang datang dan pergi. Lebih dari dua dekade berlalu, dan toko kecil itu kini menjadi rumah bagi ribuan pilihan mainan & ribuan reseller di seluruh Indonesia.") @db.Text
+  ceritaParagraph3 String @default("Saat ini, Cemerlang Toys Medan dikelola oleh generasi kedua, dengan semangat yang sama seperti awal berdiri: terus tumbuh, terus berkembang, dan terus jadi tempat yang pas buat reseller mencari stok mainan terbaru dengan harga bersaing.") @db.Text
+
+  visiText String @default("Menjadi mitra grosir mainan anak yang terus tumbuh dan berkembang, serta menjadi pilihan utama reseller untuk mendapatkan mainan-mainan terbaru dengan harga terbaik.") @db.Text
+
+  misi1 String @default("Terus tumbuh dan berkembang mengikuti perubahan zaman dan tren mainan anak.") @db.Text
+  misi2 String @default("Menyediakan dan menyuplai mainan-mainan terbaru serta model yang sedang digemari.") @db.Text
+  misi3 String @default("Menjaga harga tetap bersahabat dan kompetitif agar reseller mendapat untung lebih besar.") @db.Text
+  misi4 String @default("Membangun hubungan jangka panjang dengan reseller, dari generasi ke generasi.") @db.Text
+
+  valueProp1Title String @default("Grosir Harga Bersahabat")
+  valueProp1Desc  String @default("Harga khusus untuk pembelian dalam jumlah lebih banyak, cocok untuk reseller.") @db.Text
+  valueProp2Title String @default("Dipercaya Sejak 2002")
+  valueProp2Desc  String @default("Lebih dari 20 tahun melayani reseller mainan anak di seluruh Indonesia.") @db.Text
+  valueProp3Title String @default("Bisnis Keluarga Generasi ke-2")
+  valueProp3Desc  String @default("Dikelola dengan sepenuh hati, terus berkembang demi pelayanan yang konsisten.") @db.Text
+
+  contactTitle    String @default("Kunjungi & Hubungi Kami")
+  contactSubtitle String @default("CT Rangers siap bantu pesanan grosir kamu. Datang langsung atau hubungi kami via WhatsApp.") @db.Text
+
+  stat1Value String @default("20+")
+  stat1Label String @default("Tahun melayani reseller sejak 2002")
+  stat2Value String @default("1000+")
+  stat2Label String @default("Produk mainan anak berbagai kategori")
+  stat3Value String @default("Generasi ke-2")
+  stat3Label String @default("Bisnis keluarga terpercaya")
+  stat4Value String @default("Seluruh Indonesia")
+  stat4Label String @default("Melayani pengiriman antar kota")
+
+  keunggulan1 String @default("Update produk mengikuti tren mainan terbaru") @db.Text
+  keunggulan2 String @default("Harga grosir kompetitif untuk reseller") @db.Text
+  keunggulan3 String @default("Stok selalu diperbarui") @db.Text
+  keunggulan4 String @default("Pengiriman ke seluruh Indonesia") @db.Text
+  keunggulan5 String @default("Pengalaman lebih dari 20 tahun di industri mainan anak") @db.Text
+
+  caraOrder1 String @default("Pilih produk yang dibutuhkan di Katalog") @db.Text
+  caraOrder2 String @default("Kirim pesanan via WhatsApp") @db.Text
+  caraOrder3 String @default("Tim kami konfirmasi & proses pesanan Anda") @db.Text
+
+  faq1Question String @default("Apakah bisa beli eceran?") @db.Text
+  faq1Answer   String @default("Bisa, namun harga terbaik dan stok paling lengkap kami siapkan untuk pembelian dalam jumlah grosir/reseller.") @db.Text
+  faq2Question String @default("Apakah ada harga khusus untuk reseller?") @db.Text
+  faq2Answer   String @default("Ada. Daftar gratis di website untuk membuka harga reseller di setiap produk.") @db.Text
+  faq3Question String @default("Berapa minimal pembelian?") @db.Text
+  faq3Answer   String @default("Minimal pembelian bisa berbeda tiap produk, silakan tanyakan ke CT Rangers via WhatsApp untuk produk yang Anda minati.") @db.Text
+  faq4Question String @default("Apakah bisa kirim ke luar kota?") @db.Text
+  faq4Answer   String @default("Bisa, kami melayani pengiriman ke seluruh Indonesia menggunakan ekspedisi pilihan Anda.") @db.Text
+  faq5Question String @default("Mau lihat produk terbaru setiap hari, gimana caranya?") @db.Text
+  faq5Answer   String @default("Setelah akun Anda disetujui, simpan nomor WhatsApp CT Rangers — kami rutin membagikan produk-produk terbaru setiap hari lewat Status WhatsApp.") @db.Text
+  faq6Question String @default("Apakah harus daftar untuk melihat harga?") @db.Text
+  faq6Answer   String @default("Ya, harga grosir hanya dapat dilihat oleh member yang telah disetujui.") @db.Text
+  faq7Question String @default("Bagaimana cara memesan?") @db.Text
+  faq7Answer   String @default("Pilih produk, kirim ke WhatsApp, lalu tim kami memproses pesanan Anda.") @db.Text
+
+  updatedAt DateTime @updatedAt
+}
+
+// --- Galeri foto toko/gudang/packing ----------------------------------------
+
+model GalleryPhoto {
+  id      String  @id @default(cuid())
+  url     String
+  caption String?
+  order   Int     @default(0)
+
+  createdAt DateTime @default(now())
 }
 
 // --- Whitelist WA (auto-approve) -------------------------------------------

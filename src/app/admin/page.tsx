@@ -24,7 +24,7 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl font-bold text-ct-blue">Dashboard</h1>
-      <p className="mt-1 text-foreground/70">Ringkasan data Cemerlang Toys.</p>
+      <p className="mt-1 text-foreground/70">Ringkasan data Cemerlang Toys Medan.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {stats.map((stat) => (

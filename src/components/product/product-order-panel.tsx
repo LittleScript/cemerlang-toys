@@ -15,6 +15,7 @@ export function ProductOrderPanel({
   imageUrl,
   basePrice,
   discountPrice,
+  unit,
   variants,
   outOfStock,
   isMember,
@@ -25,6 +26,7 @@ export function ProductOrderPanel({
   imageUrl?: string | null;
   basePrice: number;
   discountPrice?: number | null;
+  unit?: string | null;
   variants: Variant[];
   outOfStock: boolean;
   isMember: boolean;
@@ -50,6 +52,7 @@ export function ProductOrderPanel({
         variantId: selectedVariant?.id,
         variantName: selectedVariant?.name,
         price,
+        unit: unit ?? undefined,
         imageUrl,
         maxQuantity,
       },
@@ -71,9 +74,13 @@ export function ProductOrderPanel({
               <span className="text-base text-foreground/40 line-through">
                 {formatRupiah(basePrice)}
               </span>
+              {unit ? <span className="text-sm text-foreground/60">/ {unit}</span> : null}
             </div>
           ) : (
-            <span className="text-2xl font-bold text-ct-blue">{formatRupiah(basePrice)}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-ct-blue">{formatRupiah(basePrice)}</span>
+              {unit ? <span className="text-sm text-foreground/60">/ {unit}</span> : null}
+            </div>
           )
         ) : (
           <p className="text-sm text-foreground/60">

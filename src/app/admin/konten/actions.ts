@@ -20,12 +20,14 @@ export async function updateSiteContent(
   const heroSubtitle = String(formData.get("heroSubtitle") ?? "").trim();
   const ctaTitle = String(formData.get("ctaTitle") ?? "").trim();
   const ctaSubtitle = String(formData.get("ctaSubtitle") ?? "").trim();
+  const footerTagline = String(formData.get("footerTagline") ?? "").trim();
+  const footerGreeting = String(formData.get("footerGreeting") ?? "").trim();
 
-  if (!heroTitle || !heroSubtitle || !ctaTitle || !ctaSubtitle) {
+  if (!heroTitle || !heroSubtitle || !ctaTitle || !ctaSubtitle || !footerTagline || !footerGreeting) {
     return { error: "Semua field wajib diisi." };
   }
 
-  const data = { heroBadge, heroTitle, heroSubtitle, ctaTitle, ctaSubtitle };
+  const data = { heroBadge, heroTitle, heroSubtitle, ctaTitle, ctaSubtitle, footerTagline, footerGreeting };
 
   await prisma.siteContent.upsert({
     where: { id: "default" },

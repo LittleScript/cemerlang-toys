@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { cn, formatRupiah } from "@/lib/utils";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { deleteProduct, toggleProductPublished } from "./actions";
+import { deleteProduct, toggleProductPublished, toggleProductStock } from "./actions";
 
 const PAGE_SIZE = 20;
 
@@ -20,7 +20,7 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
   const q = firstParam(searchParams.q)?.trim() ?? "";
   const page = Math.max(1, Number(firstParam(searchParams.page)) || 1);
 
-  const where = q ? { name: { contains: q } } : {};
+  const where = q ? { name: { contains: q, mode: "insensitive" as const } } : {};
 
   const [products, total] = await Promise.all([
     prisma.product.findMany({
@@ -97,14 +97,26 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
                 </p>
               </div>
 
-              <span
-                className={cn(
-                  "rounded-full px-3 py-1 text-xs font-semibold text-white",
-                  product.stockStatus === "OUT_OF_STOCK" ? "bg-ct-red" : "bg-ct-green"
-                )}
+              <form
+                action={async () => {
+                  "use server";
+                  await toggleProductStock(
+                    product.id,
+                    product.stockStatus === "OUT_OF_STOCK" ? "IN_STOCK" : "OUT_OF_STOCK"
+                  );
+                }}
               >
-                {product.stockStatus === "OUT_OF_STOCK" ? "Stok Habis" : "Tersedia"}
-              </span>
+                <SubmitButton
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-semibold text-white transition-colors",
+                    product.stockStatus === "OUT_OF_STOCK"
+                      ? "bg-ct-red hover:bg-ct-red/80"
+                      : "bg-ct-green hover:bg-ct-green/80"
+                  )}
+                >
+                  {product.stockStatus === "OUT_OF_STOCK" ? "Stok Habis" : "Tersedia"}
+                </SubmitButton>
+              </form>
 
               <form
                 action={async () => {

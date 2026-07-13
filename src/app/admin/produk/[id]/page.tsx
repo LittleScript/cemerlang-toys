@@ -39,6 +39,7 @@ export default async function AdminProdukEditPage(props: PageProps<"/admin/produ
             description: product.description ?? "",
             price: product.price?.toString() ?? "",
             discountPrice: product.discountPrice?.toString() ?? "",
+            unit: product.unit ?? "",
             stockStatus: product.stockStatus,
             ageRange: product.ageRange ?? "",
             categoryId: product.categoryId,

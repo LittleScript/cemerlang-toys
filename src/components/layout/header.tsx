@@ -18,8 +18,10 @@ export async function Header() {
             className="h-10 w-10 object-contain"
             priority
           />
-          <span className="font-heading text-lg font-bold text-ct-blue">
-            Cemerlang <span className="text-ct-orange">Toys</span>
+          <span className="font-heading text-lg font-bold">
+            <span className="text-ct-teal">Cemerlang</span>{" "}
+            <span className="text-ct-orange">Toys</span>{" "}
+            <span className="text-ct-blue">Medan</span>
           </span>
         </Link>
 

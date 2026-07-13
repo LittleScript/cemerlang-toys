@@ -16,7 +16,7 @@ export function ProductAccessCta({ loggedIn }: { loggedIn: boolean }) {
         href="/login"
         className="rounded-full bg-ct-teal px-5 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-ct-teal-dark"
       >
-        {loggedIn ? "Lihat Status Akun" : "Daftar / Masuk untuk Lihat Harga"}
+        {loggedIn ? "Lihat Status Akun" : "Buka Akses Harga Reseller"}
       </Link>
     </div>
   );

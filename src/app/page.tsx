@@ -7,11 +7,12 @@ import { CategoryCard } from "@/components/category-card";
 import { ProductCard } from "@/components/product-card";
 import { SITE_NAME } from "@/lib/constants";
 import { DEFAULT_SITE_CONTENT } from "@/lib/site-content";
+import { DEFAULT_ABOUT_CONTENT } from "@/lib/about-content";
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const [categories, products, siteContent] = await Promise.all([
+  const [categories, products, siteContent, aboutContent] = await Promise.all([
     prisma.category.findMany({
       orderBy: { order: "asc" },
     }),
@@ -22,9 +23,11 @@ export default async function Home() {
       include: { images: { orderBy: { order: "asc" }, take: 1 }, category: true },
     }),
     prisma.siteContent.findUnique({ where: { id: "default" } }),
+    prisma.aboutContent.findUnique({ where: { id: "default" } }),
   ]);
 
   const content = siteContent ?? DEFAULT_SITE_CONTENT;
+  const about = aboutContent ?? DEFAULT_ABOUT_CONTENT;
 
   return (
     <div className="flex flex-col">
@@ -46,7 +49,7 @@ export default async function Home() {
                 href="/login"
                 className="inline-flex items-center gap-2 rounded-full bg-ct-teal px-6 py-3 font-semibold text-white shadow-md transition-colors hover:bg-ct-teal-dark"
               >
-                Daftar untuk Lihat Harga &amp; Pesan
+                Buka Akses Harga Reseller
                 <ArrowRight size={18} />
               </Link>
               <Link
@@ -58,7 +61,7 @@ export default async function Home() {
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.15} className="relative mx-auto w-full max-w-sm">
+          <FadeIn delay={0.15} className="relative mx-auto hidden w-full max-w-sm md:block">
             <div className="relative aspect-square w-full">
               <Image
                 src="/logo-cemerlang-toys.png"
@@ -69,6 +72,38 @@ export default async function Home() {
               />
             </div>
           </FadeIn>
+        </div>
+      </section>
+
+      {/* Trust strip */}
+      <section className="border-b border-ct-teal/10 bg-white py-6">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-4 text-center sm:grid-cols-4">
+            <FadeIn>
+              <p className="font-heading text-xl font-extrabold text-ct-blue sm:text-2xl">
+                {about.stat1Value}
+              </p>
+              <p className="text-xs text-foreground/60 sm:text-sm">{about.stat1Label}</p>
+            </FadeIn>
+            <FadeIn delay={0.05}>
+              <p className="font-heading text-xl font-extrabold text-ct-blue sm:text-2xl">
+                {about.stat2Value}
+              </p>
+              <p className="text-xs text-foreground/60 sm:text-sm">{about.stat2Label}</p>
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <p className="font-heading text-xl font-extrabold text-ct-blue sm:text-2xl">
+                {about.stat3Value}
+              </p>
+              <p className="text-xs text-foreground/60 sm:text-sm">{about.stat3Label}</p>
+            </FadeIn>
+            <FadeIn delay={0.15}>
+              <p className="font-heading text-xl font-extrabold text-ct-blue sm:text-2xl">
+                {about.stat4Value}
+              </p>
+              <p className="text-xs text-foreground/60 sm:text-sm">{about.stat4Label}</p>
+            </FadeIn>
+          </div>
         </div>
       </section>
 
@@ -117,8 +152,7 @@ export default async function Home() {
                   name={product.name}
                   categoryName={product.category.name}
                   imageUrl={product.images[0]?.url}
-                  price={product.price}
-                  discountPrice={product.discountPrice}
+                  unit={product.unit}
                   stockStatus={product.stockStatus}
                 />
               </FadeIn>

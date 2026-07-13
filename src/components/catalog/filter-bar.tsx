@@ -3,10 +3,14 @@ import { CategoryIcon } from "@/components/category-icon";
 import { cn } from "@/lib/utils";
 
 const AGE_RANGES = [
-  { value: "0-2", label: "0-2 tahun" },
-  { value: "3-5", label: "3-5 tahun" },
-  { value: "6-8", label: "6-8 tahun" },
-  { value: "9-12", label: "9-12 tahun" },
+  { value: "0+", label: "0+ tahun" },
+  { value: "1+", label: "1+ tahun" },
+  { value: "2+", label: "2+ tahun" },
+  { value: "3+", label: "3+ tahun" },
+  { value: "4+", label: "4+ tahun" },
+  { value: "6+", label: "6+ tahun" },
+  { value: "8+", label: "8+ tahun" },
+  { value: "10+", label: "10+ tahun" },
   { value: "12+", label: "12+ tahun" },
 ];
 

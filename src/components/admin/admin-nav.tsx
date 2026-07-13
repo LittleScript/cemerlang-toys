@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, LayoutTemplate, Package, Tags, ShieldCheck, Users } from "lucide-react";
+import { Images, Info, LayoutDashboard, LayoutTemplate, Package, Tags, ShieldCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ADMIN_NAV = [
@@ -10,6 +10,8 @@ const ADMIN_NAV = [
   { href: "/admin/produk", label: "Produk", icon: Package },
   { href: "/admin/kategori", label: "Kategori", icon: Tags },
   { href: "/admin/konten", label: "Konten", icon: LayoutTemplate },
+  { href: "/admin/tentang", label: "Tentang Kami", icon: Info },
+  { href: "/admin/galeri", label: "Galeri", icon: Images },
   { href: "/admin/whitelist", label: "Whitelist WA", icon: ShieldCheck },
   { href: "/admin/member", label: "Member", icon: Users },
 ] as const;

@@ -8,7 +8,7 @@ export function buildCartOrderMessage({
   showPrices,
 }: {
   customerName: string;
-  items: { name: string; variantName?: string; price: number; quantity: number }[];
+  items: { name: string; variantName?: string; price: number; unit?: string; quantity: number }[];
   total: number;
   showPrices: boolean;
 }) {
@@ -18,7 +18,10 @@ export function buildCartOrderMessage({
     const label = item.variantName ? `${item.name} (${item.variantName})` : item.name;
     lines.push(`${index + 1}. ${label}`);
     if (showPrices) {
-      lines.push(`   ${item.quantity} x ${formatRupiah(item.price)} = ${formatRupiah(item.price * item.quantity)}`);
+      const unitLabel = item.unit ? `/${item.unit}` : "";
+      lines.push(
+        `   ${item.quantity} x ${formatRupiah(item.price)}${unitLabel} = ${formatRupiah(item.price * item.quantity)}`
+      );
     } else {
       lines.push(`   Jumlah: ${item.quantity}`);
     }
@@ -48,7 +51,7 @@ export function buildVerificationMessage({
   whatsapp: string;
 }) {
   return [
-    "Halo CT Rangers, saya ingin verifikasi akun Cemerlang Toys.",
+    "Halo CT Rangers, saya ingin verifikasi akun Cemerlang Toys Medan.",
     `- Nama: ${name ?? "-"}`,
     `- Email: ${email ?? "-"}`,
     `- No. WA: ${whatsapp}`,

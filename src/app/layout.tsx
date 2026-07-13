@@ -20,9 +20,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Cemerlang Toys - Grosir Mainan Anak",
+  title: "Cemerlang Toys Medan - Supplier Mainan Anak Terpercaya Sejak 2002",
   description:
-    "Cemerlang Toys - Supplier & grosir mainan anak dengan ratusan pilihan produk. Bergabung dengan CT Squad sekarang!",
+    "Cemerlang Toys Medan - Supplier mainan anak terpercaya sejak 2002 dengan harga grosir kompetitif untuk reseller dan toko mainan di seluruh Indonesia. Bergabung dengan CT Squad sekarang!",
 };
 
 export default function RootLayout({

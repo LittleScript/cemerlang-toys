@@ -88,6 +88,38 @@ export function SiteContentForm({ defaultValues }: { defaultValues: SiteContentV
         </div>
       </div>
 
+      <div className="rounded-2xl border border-ct-teal/10 bg-white p-4">
+        <h2 className="font-heading font-semibold text-ct-blue">Footer</h2>
+        <div className="mt-3 space-y-3">
+          <div>
+            <label htmlFor="footerTagline" className="mb-1 block text-sm font-medium text-foreground/80">
+              Tagline
+            </label>
+            <input
+              id="footerTagline"
+              name="footerTagline"
+              type="text"
+              required
+              defaultValue={defaultValues.footerTagline}
+              className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            />
+          </div>
+          <div>
+            <label htmlFor="footerGreeting" className="mb-1 block text-sm font-medium text-foreground/80">
+              Sapaan
+            </label>
+            <textarea
+              id="footerGreeting"
+              name="footerGreeting"
+              rows={2}
+              required
+              defaultValue={defaultValues.footerGreeting}
+              className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
       {state.error ? (
         <p className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-600">{state.error}</p>
       ) : null}

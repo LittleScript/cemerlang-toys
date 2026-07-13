@@ -11,12 +11,14 @@ export function ProductCardQuickAdd({
   name,
   imageUrl,
   price,
+  unit,
 }: {
   productId: string;
   slug: string;
   name: string;
   imageUrl?: string | null;
-  price: number;
+  price?: number;
+  unit?: string | null;
 }) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -24,14 +26,14 @@ export function ProductCardQuickAdd({
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({ productId, slug, name, price, imageUrl }, quantity);
+    addItem({ productId, slug, name, price: price ?? 0, unit: unit ?? undefined, imageUrl }, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   };
 
   return (
-    <div className="flex items-center gap-1.5">
-      <div className="inline-flex items-center rounded-full border border-ct-teal/20">
+    <div className="grid grid-cols-2 gap-1.5">
+      <div className="flex w-full items-center justify-between rounded-full border border-ct-teal/20">
         <button
           type="button"
           onClick={(e) => {
@@ -43,7 +45,7 @@ export function ProductCardQuickAdd({
         >
           <Minus size={12} />
         </button>
-        <span className="min-w-5 text-center text-xs font-semibold">{quantity}</span>
+        <span className="text-center text-xs font-semibold">{quantity}</span>
         <button
           type="button"
           onClick={(e) => {
@@ -61,7 +63,7 @@ export function ProductCardQuickAdd({
         type="button"
         onClick={handleAdd}
         className={cn(
-          "flex flex-1 items-center justify-center gap-1 rounded-full px-2 py-1.5 text-xs font-semibold text-white transition-colors",
+          "flex items-center justify-center gap-1 rounded-full px-2 py-1.5 text-xs font-semibold text-white transition-colors",
           added ? "bg-ct-green" : "bg-ct-teal hover:bg-ct-teal-dark"
         )}
       >

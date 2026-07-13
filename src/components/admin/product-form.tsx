@@ -1,11 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { upload } from "@vercel/blob/client";
-import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { ImagePlus, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { ProductFormState } from "@/app/admin/produk/actions";
-
-const AGE_RANGES = ["0-2", "3-5", "6-8", "9-12", "12+"] as const;
+import { AGE_RANGES } from "@/lib/constants";
 
 interface ImageRow {
   url: string;
@@ -30,6 +28,7 @@ interface ProductFormProps {
     description: string;
     price: string;
     discountPrice: string;
+    unit: string;
     stockStatus: string;
     ageRange: string;
     categoryId: string;
@@ -43,10 +42,108 @@ const initialState: ProductFormState = {};
 
 export function ProductForm({ action, categories, submitLabel, defaultValues }: ProductFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [categoryList, setCategoryList] = useState(categories);
+  const [pendingCategoryId, setPendingCategoryId] = useState<string | null>(null);
   const [images, setImages] = useState<ImageRow[]>(defaultValues?.images ?? []);
   const [variants, setVariants] = useState<VariantRow[]>(defaultValues?.variants ?? []);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryLoading, setNewCategoryLoading] = useState(false);
+  const [newCategoryError, setNewCategoryError] = useState<string | null>(null);
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const priceInputRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const categorySelectRef = useRef<HTMLSelectElement>(null);
+  const ageRangeSelectRef = useRef<HTMLSelectElement>(null);
+  const unitInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleAiSuggest() {
+    const name = nameInputRef.current?.value.trim();
+    if (!name) {
+      setAiError("Isi nama produk terlebih dahulu.");
+      return;
+    }
+
+    setAiError(null);
+    setAiLoading(true);
+
+    try {
+      const priceValue = priceInputRef.current?.value;
+      const price = priceValue ? Number(priceValue) : undefined;
+      const res = await fetch("/api/admin/ai-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, imageUrl: images[0]?.url, categories: categoryList, price }),
+      });
+      if (!res.ok) throw new Error("AI suggestion failed");
+      const data = (await res.json()) as {
+        description: string;
+        categoryId: string;
+        newCategory: { id: string; name: string } | null;
+        ageRange: string;
+        unit: string;
+      };
+
+      if (descriptionRef.current) descriptionRef.current.value = data.description;
+      if (data.newCategory) {
+        setCategoryList((list) => [...list, data.newCategory!]);
+      }
+      setPendingCategoryId(data.categoryId);
+      if (ageRangeSelectRef.current && (AGE_RANGES as readonly string[]).includes(data.ageRange)) {
+        ageRangeSelectRef.current.value = data.ageRange;
+      }
+      if (unitInputRef.current && data.unit) {
+        unitInputRef.current.value = data.unit;
+      }
+    } catch {
+      setAiError("Gagal mendapatkan saran AI.");
+    }
+
+    setAiLoading(false);
+  }
+
+  useEffect(() => {
+    if (
+      pendingCategoryId &&
+      categorySelectRef.current &&
+      categoryList.some((c) => c.id === pendingCategoryId)
+    ) {
+      categorySelectRef.current.value = pendingCategoryId;
+      setPendingCategoryId(null);
+    }
+  }, [categoryList, pendingCategoryId]);
+
+  async function handleCreateCategory() {
+    const name = newCategoryName.trim();
+    if (!name) return;
+
+    setNewCategoryError(null);
+    setNewCategoryLoading(true);
+
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) throw new Error("Failed to create category");
+      const created = (await res.json()) as { id: string; name: string };
+
+      setCategoryList((list) => [...list, created]);
+      setPendingCategoryId(created.id);
+      setNewCategoryName("");
+      setShowNewCategory(false);
+    } catch {
+      setNewCategoryError("Gagal menambah kategori.");
+    }
+
+    setNewCategoryLoading(false);
+  }
 
   async function handleImageFile(index: number, file: File) {
     if (!file.type.startsWith("image/")) {
@@ -58,13 +155,14 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
     setUploadingIndex(index);
 
     try {
-      const blob = await upload(file.name, file, {
-        access: "public",
-        handleUploadUrl: "/api/upload",
-      });
-      setImages((rows) =>
-        rows.map((row, i) => (i === index ? { ...row, url: blob.url } : row))
-      );
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = (await res.json()) as { url: string };
+
+      setImages((rows) => rows.map((row, i) => (i === index ? { ...row, url } : row)));
     } catch {
       setUploadError("Gagal mengunggah foto.");
     }
@@ -84,6 +182,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             name="name"
             type="text"
             required
+            ref={nameInputRef}
             defaultValue={defaultValues?.name}
             className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
           />
@@ -110,18 +209,62 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             id="categoryId"
             name="categoryId"
             required
+            ref={categorySelectRef}
             defaultValue={defaultValues?.categoryId ?? ""}
             className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
           >
             <option value="" disabled>
               Pilih kategori
             </option>
-            {categories.map((category) => (
+            {categoryList.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
           </select>
+
+          {showNewCategory ? (
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Nama kategori baru"
+                autoFocus
+                className="flex-1 rounded-lg border border-ct-teal/20 bg-white px-3 py-2 text-sm focus:border-ct-teal focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleCreateCategory}
+                disabled={newCategoryLoading || !newCategoryName.trim()}
+                className="rounded-lg bg-ct-teal px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              >
+                {newCategoryLoading ? "..." : "Tambah"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewCategory(false);
+                  setNewCategoryName("");
+                  setNewCategoryError(null);
+                }}
+                className="rounded-lg border border-ct-teal/20 px-3 py-2 text-sm text-foreground/60 hover:bg-ct-teal/5"
+              >
+                Batal
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowNewCategory(true)}
+              className="mt-1 text-xs font-semibold text-ct-teal hover:underline"
+            >
+              + Tambah kategori baru
+            </button>
+          )}
+          {newCategoryError ? (
+            <p className="mt-1 text-xs font-medium text-ct-red">{newCategoryError}</p>
+          ) : null}
         </div>
 
         <div>
@@ -131,6 +274,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
           <select
             id="ageRange"
             name="ageRange"
+            ref={ageRangeSelectRef}
             defaultValue={defaultValues?.ageRange ?? ""}
             className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
           >
@@ -152,6 +296,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             name="price"
             type="number"
             min={0}
+            ref={priceInputRef}
             defaultValue={defaultValues?.price}
             className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
           />
@@ -167,6 +312,21 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             type="number"
             min={0}
             defaultValue={defaultValues?.discountPrice}
+            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="unit" className="mb-1 block text-sm font-medium text-foreground/80">
+            Satuan <span className="text-foreground/40">(opsional)</span>
+          </label>
+          <input
+            id="unit"
+            name="unit"
+            type="text"
+            ref={unitInputRef}
+            placeholder="pcs, pack, lusin, set, dll"
+            defaultValue={defaultValues?.unit}
             className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
           />
         </div>
@@ -201,13 +361,29 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
       </div>
 
       <div>
-        <label htmlFor="description" className="mb-1 block text-sm font-medium text-foreground/80">
-          Deskripsi
-        </label>
+        <div className="mb-1 flex items-center justify-between">
+          <label htmlFor="description" className="block text-sm font-medium text-foreground/80">
+            Deskripsi
+          </label>
+          <button
+            type="button"
+            onClick={handleAiSuggest}
+            disabled={aiLoading}
+            className="inline-flex items-center gap-1 rounded-full border border-ct-teal/20 px-3 py-1 text-xs font-semibold text-ct-blue hover:bg-ct-teal/10 disabled:opacity-60"
+          >
+            {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+            Isi dengan AI
+          </button>
+        </div>
+        {aiError ? <p className="mb-1 text-sm font-medium text-ct-red">{aiError}</p> : null}
+        <p className="mb-2 text-xs text-foreground/50">
+          AI akan mengisi deskripsi, kategori, rentang usia, dan satuan berdasarkan nama produk dan foto pertama. Anda tetap bisa mengubahnya secara manual jika kurang sesuai.
+        </p>
         <textarea
           id="description"
           name="description"
           rows={4}
+          ref={descriptionRef}
           defaultValue={defaultValues?.description}
           className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
         />
@@ -270,7 +446,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
 
               <div className="flex flex-1 flex-col gap-2">
                 <input
-                  type="url"
+                  type="text"
                   placeholder="atau tempel link gambar https://..."
                   value={image.url}
                   onChange={(e) =>

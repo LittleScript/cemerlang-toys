@@ -10,6 +10,7 @@ export function ProductCard({
   imageUrl,
   price,
   discountPrice,
+  unit,
   stockStatus,
 }: {
   productId: string;
@@ -19,10 +20,10 @@ export function ProductCard({
   imageUrl?: string | null;
   price?: number | null;
   discountPrice?: number | null;
+  unit?: string | null;
   stockStatus: string;
 }) {
   const outOfStock = stockStatus === "OUT_OF_STOCK";
-  const cartPrice = discountPrice ?? price ?? 0;
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl border border-ct-teal/10 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
@@ -62,7 +63,8 @@ export function ProductCard({
             slug={slug}
             name={name}
             imageUrl={imageUrl}
-            price={cartPrice}
+            price={discountPrice ?? price ?? undefined}
+            unit={unit}
           />
         </div>
       ) : null}

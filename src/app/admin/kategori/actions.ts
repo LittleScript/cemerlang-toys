@@ -4,17 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
+import { slugify } from "@/lib/utils";
 
 export interface CategoryFormState {
   error?: string;
-}
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
 }
 
 function readCategoryInput(formData: FormData) {
@@ -39,7 +32,13 @@ export async function createCategory(
   const existing = await prisma.category.findUnique({ where: { slug } });
   if (existing) return { error: "Slug sudah dipakai kategori lain." };
 
-  await prisma.category.create({ data: { name, slug, icon: icon || null, order } });
+  try {
+    await prisma.category.create({ data: { name, slug, icon: icon || null, order } });
+  } catch (error: unknown) {
+    const code = (error as { code?: string }).code;
+    if (code === "P2002") return { error: "Slug sudah dipakai kategori lain." };
+    throw error;
+  }
 
   revalidatePath("/admin/kategori");
   revalidatePath("/katalog");
@@ -60,22 +59,35 @@ export async function updateCategory(
   const existing = await prisma.category.findUnique({ where: { slug } });
   if (existing && existing.id !== id) return { error: "Slug sudah dipakai kategori lain." };
 
-  await prisma.category.update({ where: { id }, data: { name, slug, icon: icon || null, order } });
+  try {
+    await prisma.category.update({ where: { id }, data: { name, slug, icon: icon || null, order } });
+  } catch (error: unknown) {
+    const code = (error as { code?: string }).code;
+    if (code === "P2002") return { error: "Slug sudah dipakai kategori lain." };
+    if (code === "P2025") return { error: "Kategori tidak ditemukan atau sudah dihapus." };
+    throw error;
+  }
 
   revalidatePath("/admin/kategori");
   revalidatePath("/katalog");
   redirect("/admin/kategori");
 }
 
-export async function deleteCategory(id: string) {
+export async function deleteCategory(id: string): Promise<CategoryFormState> {
   await requireAdmin();
 
   const productCount = await prisma.product.count({ where: { categoryId: id } });
   if (productCount > 0) {
-    redirect("/admin/kategori?error=kategori-dipakai");
+    return { error: "Kategori tidak dapat dihapus karena masih memiliki produk." };
   }
 
-  await prisma.category.delete({ where: { id } });
+  try {
+    await prisma.category.delete({ where: { id } });
+  } catch {
+    return { error: "Kategori tidak ditemukan atau sudah dihapus." };
+  }
+
   revalidatePath("/admin/kategori");
   revalidatePath("/katalog");
+  return {};
 }

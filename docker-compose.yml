@@ -11,6 +11,34 @@ services:
       - "5433:5432"
     volumes:
       - cemerlang_toys_db_data:/var/lib/postgresql
+    networks:
+      - cemerlang-toys
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cemerlang -d cemerlang_toys"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+    container_name: cemerlang-toys-app
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - "3001:3000"
+    volumes:
+      - cemerlang_toys_uploads:/app/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - cemerlang-toys
 
 volumes:
   cemerlang_toys_db_data:
+  cemerlang_toys_uploads:
+
+networks:
+  cemerlang-toys:

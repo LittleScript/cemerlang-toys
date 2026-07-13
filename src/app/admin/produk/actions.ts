@@ -4,17 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
+import { slugify } from "@/lib/utils";
 
 export interface ProductFormState {
   error?: string;
-}
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
 }
 
 interface ImageInput {
@@ -46,6 +39,7 @@ function readProductInput(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const priceRaw = String(formData.get("price") ?? "").trim();
   const discountPriceRaw = String(formData.get("discountPrice") ?? "").trim();
+  const unit = String(formData.get("unit") ?? "").trim();
   const stockStatus = String(formData.get("stockStatus") ?? "IN_STOCK");
   const ageRangeRaw = String(formData.get("ageRange") ?? "").trim();
   const categoryId = String(formData.get("categoryId") ?? "");
@@ -59,8 +53,8 @@ function readProductInput(formData: FormData) {
     .map((variant) => ({
       name: variant.name?.trim() ?? "",
       sku: variant.sku?.trim() || null,
-      price: variant.price ? Number(variant.price) : null,
-      stock: variant.stock ? Number(variant.stock) : 0,
+      price: variant.price != null && variant.price !== "" ? Number(variant.price) : null,
+      stock: variant.stock != null && variant.stock !== "" ? Number(variant.stock) : 0,
       image: variant.image?.trim() || null,
     }))
     .filter((variant) => variant.name);
@@ -71,6 +65,7 @@ function readProductInput(formData: FormData) {
     description: description || null,
     price: priceRaw ? Number(priceRaw) : null,
     discountPrice: discountPriceRaw ? Number(discountPriceRaw) : null,
+    unit: unit || null,
     stockStatus,
     ageRange: ageRangeRaw || null,
     categoryId,
@@ -94,21 +89,28 @@ export async function createProduct(
   const existing = await prisma.product.findUnique({ where: { slug: input.slug } });
   if (existing) return { error: "Slug sudah dipakai produk lain." };
 
-  await prisma.product.create({
-    data: {
-      name: input.name,
-      slug: input.slug,
-      description: input.description,
-      price: input.price,
-      discountPrice: input.discountPrice,
-      stockStatus: input.stockStatus,
-      ageRange: input.ageRange,
-      published: input.published,
-      categoryId: input.categoryId,
-      images: { create: input.images.map((img, index) => ({ ...img, order: index })) },
-      variants: { create: input.variants },
-    },
-  });
+  try {
+    await prisma.product.create({
+      data: {
+        name: input.name,
+        slug: input.slug,
+        description: input.description,
+        price: input.price,
+        discountPrice: input.discountPrice,
+        unit: input.unit,
+        stockStatus: input.stockStatus,
+        ageRange: input.ageRange,
+        published: input.published,
+        categoryId: input.categoryId,
+        images: { create: input.images.map((img, index) => ({ ...img, order: index })) },
+        variants: { create: input.variants },
+      },
+    });
+  } catch (error: unknown) {
+    const code = (error as { code?: string }).code;
+    if (code === "P2002") return { error: "Slug sudah dipakai produk lain." };
+    throw error;
+  }
 
   revalidatePath("/admin/produk");
   revalidatePath("/katalog");
@@ -131,27 +133,30 @@ export async function updateProduct(
   const existing = await prisma.product.findUnique({ where: { slug: input.slug } });
   if (existing && existing.id !== id) return { error: "Slug sudah dipakai produk lain." };
 
-  await prisma.product.update({
-    where: { id },
-    data: {
-      name: input.name,
-      slug: input.slug,
-      description: input.description,
-      price: input.price,
-      discountPrice: input.discountPrice,
-      stockStatus: input.stockStatus,
-      ageRange: input.ageRange,
-      published: input.published,
-      categoryId: input.categoryId,
-      images: {
-        deleteMany: {},
-        create: input.images.map((img, index) => ({ ...img, order: index })),
+  await prisma.$transaction(async (tx) => {
+    await tx.product.update({
+      where: { id },
+      data: {
+        name: input.name,
+        slug: input.slug,
+        description: input.description,
+        price: input.price,
+        discountPrice: input.discountPrice,
+        unit: input.unit,
+        stockStatus: input.stockStatus,
+        ageRange: input.ageRange,
+        published: input.published,
+        categoryId: input.categoryId,
+        images: {
+          deleteMany: {},
+          create: input.images.map((img, index) => ({ ...img, order: index })),
+        },
+        variants: {
+          deleteMany: {},
+          create: input.variants,
+        },
       },
-      variants: {
-        deleteMany: {},
-        create: input.variants,
-      },
-    },
+    });
   });
 
   revalidatePath("/admin/produk");
@@ -161,17 +166,30 @@ export async function updateProduct(
   redirect("/admin/produk");
 }
 
-export async function deleteProduct(id: string) {
+export async function deleteProduct(id: string): Promise<ProductFormState> {
   await requireAdmin();
-  await prisma.product.delete({ where: { id } });
+  try {
+    await prisma.product.delete({ where: { id } });
+  } catch {
+    return { error: "Produk tidak ditemukan atau sudah dihapus." };
+  }
   revalidatePath("/admin/produk");
   revalidatePath("/katalog");
   revalidatePath("/");
+  return {};
 }
 
 export async function toggleProductPublished(id: string, published: boolean) {
   await requireAdmin();
   await prisma.product.update({ where: { id }, data: { published } });
+  revalidatePath("/admin/produk");
+  revalidatePath("/katalog");
+  revalidatePath("/");
+}
+
+export async function toggleProductStock(id: string, stockStatus: string) {
+  await requireAdmin();
+  await prisma.product.update({ where: { id }, data: { stockStatus } });
   revalidatePath("/admin/produk");
   revalidatePath("/katalog");
   revalidatePath("/");

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ProductGallery } from "@/components/product/product-gallery";
@@ -6,6 +7,35 @@ import { ProductOrderPanel } from "@/components/product/product-order-panel";
 import { ProductAccessCta } from "@/components/product/product-access-cta";
 import { FadeIn } from "@/components/motion/fade-in";
 import { cn } from "@/lib/utils";
+import { SITE_NAME } from "@/lib/constants";
+
+export async function generateMetadata(
+  props: PageProps<"/produk/[slug]">
+): Promise<Metadata> {
+  const { slug } = await props.params;
+
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    select: {
+      name: true,
+      description: true,
+      images: { orderBy: { order: "asc" }, take: 1, select: { url: true, alt: true } },
+    },
+  });
+
+  if (!product) return { title: "Produk Tidak Ditemukan" };
+
+  return {
+    title: `${product.name} — ${SITE_NAME}`,
+    description:
+      product.description?.slice(0, 160) ?? `${product.name} — Supplier mainan anak terpercaya.`,
+    openGraph: {
+      title: `${product.name} — ${SITE_NAME}`,
+      description: product.description?.slice(0, 160) ?? "",
+      images: product.images[0]?.url ? [{ url: product.images[0].url, alt: product.images[0].alt ?? product.name }] : [],
+    },
+  };
+}
 
 export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
   const { slug } = await props.params;
@@ -62,6 +92,7 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
             imageUrl={product.images[0]?.url}
             basePrice={product.price ?? 0}
             discountPrice={product.discountPrice}
+            unit={product.unit}
             variants={product.variants}
             outOfStock={outOfStock}
             isMember={isMember}
