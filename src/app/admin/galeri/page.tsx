@@ -1,10 +1,9 @@
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { GalleryForm } from "@/components/admin/gallery-form";
-import { SubmitButton } from "@/components/ui/submit-button";
 import { PageHeader } from "@/components/admin/ui/page-header";
+import { DeleteButton } from "@/components/admin/ui/delete-button";
 import { deleteGalleryPhoto } from "./actions";
 
 export default async function AdminGaleriPage() {
@@ -35,19 +34,14 @@ export default async function AdminGaleriPage() {
             </div>
             <div className="flex items-center justify-between gap-2 px-3 py-2">
               <p className="truncate text-sm text-[var(--text-secondary)]">{photo.caption || "(tanpa keterangan)"}</p>
-              <form
-                action={async () => {
+              <DeleteButton
+                itemLabel={`Foto "${photo.caption || "tanpa keterangan"}"`}
+                size="sm"
+                onDelete={async () => {
                   "use server";
                   await deleteGalleryPhoto(photo.id);
                 }}
-              >
-                <SubmitButton
-                  className="rounded-full p-1.5 text-[var(--text-muted)] hover:bg-[var(--danger-muted)] hover:text-[var(--danger)]"
-                  aria-label="Hapus"
-                >
-                  <Trash2 size={16} />
-                </SubmitButton>
-              </form>
+              />
             </div>
           </div>
         ))}

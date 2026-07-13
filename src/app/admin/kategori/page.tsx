@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { CategoryIcon } from "@/components/category-icon";
 import { CategoryForm } from "@/components/admin/category-form";
-import { SubmitButton } from "@/components/ui/submit-button";
 import { PageHeader } from "@/components/admin/ui/page-header";
+import { DeleteButton } from "@/components/admin/ui/delete-button";
 import { createCategory, deleteCategory } from "./actions";
 
 export default async function AdminKategoriPage(
@@ -77,20 +77,13 @@ export default async function AdminKategoriPage(
               >
                 <Pencil size={18} />
               </Link>
-              <form
-                action={async () => {
+              <DeleteButton
+                itemLabel={`Kategori "${category.name}"`}
+                onDelete={async () => {
                   "use server";
                   await deleteCategory(category.id);
                 }}
-              >
-                <SubmitButton
-                  variant="ghost"
-                  className="rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--danger-muted)] hover:text-[var(--danger)]"
-                  aria-label="Hapus"
-                >
-                  <Trash2 size={18} />
-                </SubmitButton>
-              </form>
+              />
             </div>
           </div>
         ))}

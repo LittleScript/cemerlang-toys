@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { cn, formatRupiah } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { PageHeader } from "@/components/admin/ui/page-header";
 import { StatusBadge } from "@/components/admin/ui/status-badge";
 import { SearchInput } from "@/components/admin/ui/search-input";
+import { DeleteButton } from "@/components/admin/ui/delete-button";
 import {
   deleteProduct,
   toggleProductPublished,
@@ -137,20 +138,13 @@ export default async function AdminProdukPage(
                 <Pencil size={18} />
               </Link>
 
-              <form
-                action={async () => {
+              <DeleteButton
+                itemLabel={`Produk "${product.name}"`}
+                onDelete={async () => {
                   "use server";
                   await deleteProduct(product.id);
                 }}
-              >
-                <SubmitButton
-                  variant="ghost"
-                  className="rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--danger-muted)] hover:text-[var(--danger)]"
-                  aria-label="Hapus"
-                >
-                  <Trash2 size={18} />
-                </SubmitButton>
-              </form>
+              />
             </div>
           ))
         )}

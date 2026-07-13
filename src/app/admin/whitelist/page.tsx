@@ -1,8 +1,8 @@
-import { Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { WhitelistForm } from "@/components/admin/whitelist-form";
-import { SubmitButton } from "@/components/ui/submit-button";
+import { PageHeader } from "@/components/admin/ui/page-header";
+import { DeleteButton } from "@/components/admin/ui/delete-button";
 import { removeWhitelistNumber } from "./actions";
 
 export default async function AdminWhitelistPage() {
@@ -12,44 +12,45 @@ export default async function AdminWhitelistPage() {
 
   return (
     <div>
-      <h1 className="font-heading text-2xl font-bold text-ct-blue">Whitelist WA</h1>
-      <p className="mt-1 text-foreground/70">
-        Member baru yang mendaftar dengan No. WhatsApp di daftar ini akan otomatis disetujui
-        (approved).
-      </p>
+      <PageHeader
+        title="Whitelist WA"
+        description="Member baru yang mendaftar dengan No. WhatsApp di daftar ini akan otomatis disetujui (approved)."
+      />
 
-      <div className="mt-6 rounded-2xl border border-ct-teal/10 bg-white p-4">
+      <div
+        className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4"
+        style={{ borderRadius: "var(--radius-lg)" }}
+      >
         <WhitelistForm />
       </div>
 
       <div className="mt-6 space-y-2">
         {entries.length === 0 ? (
-          <p className="rounded-2xl border border-ct-teal/10 bg-white p-6 text-center text-foreground/60">
+          <p
+            className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-center text-[var(--text-muted)]"
+            style={{ borderRadius: "var(--radius-lg)" }}
+          >
             Belum ada nomor di whitelist.
           </p>
         ) : (
           entries.map((entry) => (
             <div
               key={entry.id}
-              className="flex items-center justify-between rounded-xl border border-ct-teal/10 bg-white px-4 py-3"
+              className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
             >
               <div>
-                <p className="font-semibold text-ct-blue">{entry.phoneNumber}</p>
-                {entry.note ? <p className="text-sm text-foreground/60">{entry.note}</p> : null}
+                <p className="font-semibold text-[var(--text-primary)]">{entry.phoneNumber}</p>
+                {entry.note ? (
+                  <p className="text-sm text-[var(--text-muted)]">{entry.note}</p>
+                ) : null}
               </div>
-              <form
-                action={async () => {
+              <DeleteButton
+                itemLabel={`Whitelist ${entry.phoneNumber}`}
+                onDelete={async () => {
                   "use server";
                   await removeWhitelistNumber(entry.id);
                 }}
-              >
-                <SubmitButton
-                  className="rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
-                  aria-label="Hapus"
-                >
-                  <Trash2 size={18} />
-                </SubmitButton>
-              </form>
+              />
             </div>
           ))
         )}
