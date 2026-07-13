@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { CartProvider } from "@/lib/cart-context";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { SiteChrome } from "@/components/layout/site-chrome";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -34,15 +35,36 @@ export default function RootLayout({
     <html
       lang="id"
       className={`${poppins.variable} ${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if (!location.pathname.startsWith('/admin')) return;
+                var theme = localStorage.getItem('ct-admin-theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (theme === 'dark' || (!theme && prefersDark)) {
+                  document.documentElement.classList.add('dark');
+                }
+                var collapsed = localStorage.getItem('ct-admin-sidebar-collapsed');
+                if (collapsed === 'true') {
+                  document.documentElement.classList.add('sidebar-collapsed');
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col font-sans">
         <NextTopLoader color="#2bc4c2" showSpinner={false} />
         <SmoothScroll />
         <SessionProvider>
           <CartProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
+            <SiteChrome header={<Header />} footer={<Footer />}>
+              {children}
+            </SiteChrome>
           </CartProvider>
         </SessionProvider>
       </body>
