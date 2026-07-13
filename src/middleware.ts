@@ -1,39 +1,42 @@
-import { auth } from "@/auth";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 /**
- * Centralized auth middleware for Next.js.
- * Protects admin routes and redirects based on user status.
+ * Edge-compatible middleware — lightweight cookie-based checks only.
+ * Does NOT import @/auth or @/lib/prisma (Node.js-native modules crash Edge Runtime).
+ *
+ * Detailed auth/role verification happens server-side via requireAdmin() on each admin page.
  */
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-  const user = req.auth?.user;
 
-  // Admin routes: redirect non-admins to homepage
+const SESSION_COOKIES = [
+  "authjs.session-token",
+  "__Secure-authjs.session-token",
+] as const;
+
+function hasSession(request: NextRequest): boolean {
+  return SESSION_COOKIES.some((name) => request.cookies.has(name));
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isLoggedIn = hasSession(request);
+
+  // Protect admin routes — no session → redirect to login.
+  // Role check (ADMIN vs non-admin) is handled by requireAdmin() in server components.
   if (pathname.startsWith("/admin")) {
-    if (!user || user.role !== "ADMIN") {
-      const homeUrl = new URL("/", req.url);
-      return Response.redirect(homeUrl);
+    if (!isLoggedIn) {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 
-  // Login page: redirect already-logged-in users to appropriate page
-  if (pathname === "/login" && user) {
-    if (!user.whatsapp) {
-      return Response.redirect(new URL("/daftar", req.url));
-    }
-    if (user.status === "APPROVED") {
-      return Response.redirect(new URL("/", req.url));
-    }
-    if (user.status === "REJECTED") {
-      return Response.redirect(new URL("/akun/ditolak", req.url));
-    }
-    return Response.redirect(new URL("/akun/menunggu-verifikasi", req.url));
+  // Redirect logged-in users away from /login
+  if (pathname === "/login" && isLoggedIn) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  return;
-});
+  return NextResponse.next();
+}
 
 export const config = {
-  // Match all paths except static assets, _next, and favicon
   matcher: ["/((?!_next|api|uploads|logo-|favicon|file.svg|.*\\.png$).*)"],
 };
