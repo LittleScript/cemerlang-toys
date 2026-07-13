@@ -64,7 +64,7 @@
 
   --font-sans:      'Inter', system-ui, -apple-system, sans-serif;
   --font-heading:   'Poppins', var(--font-sans);
-  --font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+  --font-mono-family:      'JetBrains Mono', 'Fira Code', monospace;
 
   --text-xs:        0.75rem;
   --text-sm:        0.875rem;
@@ -166,6 +166,8 @@
   --color-bg:                var(--bg);
   --color-bg-sidebar:        var(--bg-sidebar);
   --color-bg-topbar:         var(--bg-topbar);
+  --color-background:        var(--bg);
+  --color-foreground:        var(--text-primary);
   --color-surface-overlay:    var(--surface-overlay);
   --color-sidebar-text:       var(--sidebar-text);
   --color-sidebar-text-hover: var(--sidebar-text-hover);
@@ -184,7 +186,7 @@
   --color-ct-cream:          #fffaf0;
   --font-sans:               var(--font-inter);
   --font-heading:            var(--font-poppins);
-  --font-mono:               var(--font-mono);
+  --font-mono:               var(--font-mono-family);
 }
 
 /* Global styles */
@@ -193,7 +195,7 @@ html { scroll-behavior: smooth; }
 
 *, *::before, *::after {
   transition-property: background-color, border-color, color, box-shadow;
-  transition-duration: 300ms;
+  transition-duration: var(--transition-theme);
   transition-timing-function: ease;
 }
 .admin-layout, .admin-content { transition: none; }
