@@ -166,6 +166,12 @@
   --color-bg:                var(--bg);
   --color-bg-sidebar:        var(--bg-sidebar);
   --color-bg-topbar:         var(--bg-topbar);
+  --color-surface-overlay:    var(--surface-overlay);
+  --color-sidebar-text:       var(--sidebar-text);
+  --color-sidebar-text-hover: var(--sidebar-text-hover);
+  --color-sidebar-active:     var(--sidebar-active);
+  --color-sidebar-active-bg:  var(--sidebar-active-bg);
+  --color-sidebar-divider:    var(--sidebar-divider);
   --color-ct-teal:           var(--brand);
   --color-ct-teal-dark:      var(--brand-hover);
   --color-ct-orange:         #ff9d3d;
