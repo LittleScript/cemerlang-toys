@@ -1,18 +1,29 @@
 import type { ReactNode } from "react";
 import { requireAdmin } from "@/lib/admin";
-import { AdminNav } from "@/components/admin/admin-nav";
+import { ThemeProvider } from "@/components/admin/theme-provider";
+import { ToastProvider } from "@/components/admin/ui/toast";
+import { Sidebar } from "@/components/admin/sidebar";
+import { Topbar } from "@/components/admin/topbar";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   await requireAdmin();
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8 md:flex-row">
-      <aside className="md:w-56 md:shrink-0">
-        <div className="md:sticky md:top-24">
-          <AdminNav />
+    <ThemeProvider>
+      <ToastProvider>
+        <div className="admin-layout">
+          <Sidebar />
+          <div className="admin-main">
+            <Topbar />
+            <main
+              className="admin-content flex-1 overflow-y-auto"
+              style={{ padding: 'var(--content-padding-x)' }}
+            >
+              {children}
+            </main>
+          </div>
         </div>
-      </aside>
-      <div className="min-w-0 flex-1">{children}</div>
-    </div>
+      </ToastProvider>
+    </ThemeProvider>
   );
 }
