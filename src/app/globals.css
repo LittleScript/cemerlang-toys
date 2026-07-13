@@ -220,5 +220,11 @@ a:active, button:not(:disabled):active {
 .admin-layout.sidebar-collapsed > .sidebar { width: var(--sidebar-collapsed); }
 @media (max-width: 767px) { .admin-layout > .sidebar { display: none; } }
 
+/* Sidebar collapse: hide text labels + swap chevron */
+.sidebar-collapsed .sidebar-section-label { display: none; }
+.sidebar-collapsed .sidebar-label-text { display: none; }
+.sidebar-collapsed .sidebar-collapsed-hide { display: none !important; }
+.sidebar-collapsed .sidebar-collapsed-show { display: block !important; }
+
 @media (min-width: 768px)  { :root { --content-padding-x: 24px; } }
 @media (min-width: 1024px) { :root { --content-padding-x: 32px; } }

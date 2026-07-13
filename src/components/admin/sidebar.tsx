@@ -1,10 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Package, Tags, LayoutTemplate,
-  Info, Images, ShieldCheck, Users,
+  Info, Images, ShieldCheck, Users, User,
+  ChevronLeft, ChevronRight, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -48,18 +51,58 @@ const NAV_SECTIONS: NavSection[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   function isActive(href: string, exact?: boolean) {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
   }
 
-  return (
-    <aside className="sidebar flex flex-col bg-[var(--bg-sidebar)] text-[var(--sidebar-text)] overflow-hidden">
+  function toggleCollapse() {
+    const el = document.documentElement;
+    const isCollapsed = el.classList.contains("sidebar-collapsed");
+    if (isCollapsed) {
+      el.classList.remove("sidebar-collapsed");
+    } else {
+      el.classList.add("sidebar-collapsed");
+    }
+    localStorage.setItem(
+      "ct-admin-sidebar-collapsed",
+      isCollapsed ? "false" : "true"
+    );
+  }
+
+  // Mobile drawer listener
+  useEffect(() => {
+    function handler() {
+      setMobileOpen((v) => !v);
+    }
+    window.addEventListener("toggle-sidebar-drawer", handler);
+    return () =>
+      window.removeEventListener("toggle-sidebar-drawer", handler);
+  }, []);
+
+  // Escape key closes mobile drawer
+  useEffect(() => {
+    if (!mobileOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMobileOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    // Lock body scroll
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const sidebarContent = (
+    <aside className="sidebar flex flex-col bg-[var(--bg-sidebar)] text-[var(--sidebar-text)] overflow-hidden h-full">
       {/* Brand */}
       <div className="flex h-[var(--topbar-height)] items-center gap-3 px-4 shrink-0">
         <span className="text-xl shrink-0">🧸</span>
-        <span className="font-heading font-semibold text-[var(--sidebar-text-hover)] text-sm whitespace-nowrap">
+        <span className="font-heading font-semibold text-[var(--sidebar-text-hover)] text-sm sidebar-label-text">
           Cemerlang Toys
         </span>
       </div>
@@ -87,9 +130,10 @@ export function Sidebar() {
                         : "border-l-transparent hover:bg-[var(--brand-muted)] hover:text-[var(--sidebar-text-hover)]"
                     )}
                     title={item.label}
+                    onClick={() => setMobileOpen(false)}
                   >
                     <item.icon size={18} className="shrink-0" />
-                    <span className="whitespace-nowrap">{item.label}</span>
+                    <span className="sidebar-label-text">{item.label}</span>
                   </Link>
                 );
               })}
@@ -98,6 +142,16 @@ export function Sidebar() {
         ))}
       </nav>
 
+      {/* Collapse toggle (desktop) */}
+      <button
+        onClick={toggleCollapse}
+        className="hidden lg:flex items-center justify-center h-10 mx-3 mb-3 rounded-lg text-[var(--sidebar-text)] hover:bg-[var(--brand-muted)] hover:text-[var(--sidebar-text-hover)] transition-colors shrink-0"
+        aria-label="Toggle sidebar"
+      >
+        <ChevronLeft size={18} className="sidebar-collapsed-hide" />
+        <ChevronRight size={18} className="sidebar-collapsed-show hidden" />
+      </button>
+
       {/* User footer */}
       {session?.user && (
         <>
@@ -105,21 +159,23 @@ export function Sidebar() {
           <div className="p-3 shrink-0">
             <div className="flex items-center gap-3 rounded-lg px-3 py-2">
               {session.user.image ? (
-                <img
+                <Image
                   src={session.user.image}
-                  alt=""
+                  alt={session.user.name ?? ""}
+                  width={32}
+                  height={32}
                   className="h-8 w-8 rounded-full object-cover shrink-0"
                 />
               ) : (
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--surface-muted)]">
-                  <Users size={16} className="text-[var(--text-muted)]" />
+                  <User size={16} className="text-[var(--text-muted)]" />
                 </span>
               )}
               <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--sidebar-text-hover)] truncate">
+                <p className="text-sm font-medium text-[var(--sidebar-text-hover)] truncate sidebar-label-text">
                   {session.user.name ?? "Admin"}
                 </p>
-                <p className="text-xs text-[var(--sidebar-text)] truncate">
+                <p className="text-xs text-[var(--sidebar-text)] truncate sidebar-label-text">
                   {session.user.email ?? ""}
                 </p>
               </div>
@@ -127,12 +183,44 @@ export function Sidebar() {
           </div>
         </>
       )}
-
-      {/* Collapse CSS: hide labels when collapsed */}
-      <style jsx>{`
-        .sidebar-collapsed .sidebar-section-label { display: none; }
-        .sidebar-collapsed .sidebar span.whitespace-nowrap { display: none; }
-      `}</style>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar (always in the layout) */}
+      {sidebarContent}
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 lg:hidden"
+          style={{ zIndex: "var(--z-overlay)" }}
+        >
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor: "var(--surface-overlay)" }}
+            onClick={() => setMobileOpen(false)}
+          />
+
+          {/* Drawer */}
+          <div
+            className="absolute inset-y-0 left-0 w-[var(--sidebar-width)] shadow-xl animate-slide-in"
+            style={{ zIndex: "calc(var(--z-overlay) + 1)" }}
+          >
+            {/* Close button for mobile */}
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="absolute top-4 right-4 z-10 rounded-full p-1.5 text-[var(--sidebar-text)] hover:bg-[var(--brand-muted)] hover:text-[var(--sidebar-text-hover)] transition-colors lg:hidden"
+              aria-label="Tutup menu"
+            >
+              <X size={20} />
+            </button>
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
