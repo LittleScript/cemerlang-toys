@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { ImagePlus, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { ProductFormState } from "@/app/admin/produk/actions";
 import { AGE_RANGES } from "@/lib/constants";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 interface ImageRow {
   url: string;
@@ -174,7 +175,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
     <form action={formAction} className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="name" className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="name" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Nama Produk
           </label>
           <input
@@ -184,12 +185,12 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             required
             ref={nameInputRef}
             defaultValue={defaultValues?.name}
-            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="slug" className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="slug" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Slug <span className="text-foreground/40">(opsional, otomatis dari nama)</span>
           </label>
           <input
@@ -197,12 +198,12 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             name="slug"
             type="text"
             defaultValue={defaultValues?.slug}
-            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="categoryId" className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="categoryId" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Kategori
           </label>
           <select
@@ -211,7 +212,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             required
             ref={categorySelectRef}
             defaultValue={defaultValues?.categoryId ?? ""}
-            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
           >
             <option value="" disabled>
               Pilih kategori
@@ -231,7 +232,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="Nama kategori baru"
                 autoFocus
-                className="flex-1 rounded-lg border border-ct-teal/20 bg-white px-3 py-2 text-sm focus:border-ct-teal focus:outline-none"
+                className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm focus:border-[var(--border-focus)] focus:outline-none"
               />
               <button
                 type="button"
@@ -248,7 +249,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                   setNewCategoryName("");
                   setNewCategoryError(null);
                 }}
-                className="rounded-lg border border-ct-teal/20 px-3 py-2 text-sm text-foreground/60 hover:bg-ct-teal/5"
+                className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm text-[var(--text-muted)] hover:bg-[var(--brand-muted)]"
               >
                 Batal
               </button>
@@ -257,18 +258,18 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             <button
               type="button"
               onClick={() => setShowNewCategory(true)}
-              className="mt-1 text-xs font-semibold text-ct-teal hover:underline"
+              className="mt-1 text-xs font-semibold text-[var(--brand)] hover:underline"
             >
               + Tambah kategori baru
             </button>
           )}
           {newCategoryError ? (
-            <p className="mt-1 text-xs font-medium text-ct-red">{newCategoryError}</p>
+            <p className="mt-1 text-xs font-medium text-[var(--danger)]">{newCategoryError}</p>
           ) : null}
         </div>
 
         <div>
-          <label htmlFor="ageRange" className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="ageRange" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Rentang Usia
           </label>
           <select
@@ -276,7 +277,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             name="ageRange"
             ref={ageRangeSelectRef}
             defaultValue={defaultValues?.ageRange ?? ""}
-            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
           >
             <option value="">(tidak ditentukan)</option>
             {AGE_RANGES.map((age) => (
@@ -288,7 +289,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
         </div>
 
         <div>
-          <label htmlFor="price" className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="price" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Harga (Rp)
           </label>
           <input
@@ -298,12 +299,12 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             min={0}
             ref={priceInputRef}
             defaultValue={defaultValues?.price}
-            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="discountPrice" className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="discountPrice" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Harga Diskon (Rp) <span className="text-foreground/40">(opsional)</span>
           </label>
           <input
@@ -312,12 +313,12 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             type="number"
             min={0}
             defaultValue={defaultValues?.discountPrice}
-            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="unit" className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="unit" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Satuan <span className="text-foreground/40">(opsional)</span>
           </label>
           <input
@@ -327,19 +328,19 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             ref={unitInputRef}
             placeholder="pcs, pack, lusin, set, dll"
             defaultValue={defaultValues?.unit}
-            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="stockStatus" className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="stockStatus" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Status Stok
           </label>
           <select
             id="stockStatus"
             name="stockStatus"
             defaultValue={defaultValues?.stockStatus ?? "IN_STOCK"}
-            className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
           >
             <option value="IN_STOCK">Tersedia</option>
             <option value="OUT_OF_STOCK">Stok Habis</option>
@@ -352,9 +353,9 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             name="published"
             type="checkbox"
             defaultChecked={defaultValues?.published ?? true}
-            className="h-4 w-4 rounded border-ct-teal/30 text-ct-teal focus:ring-ct-teal"
+            className="h-4 w-4 rounded border-[var(--border)] text-[var(--brand)] focus:ring-[var(--brand)]"
           />
-          <label htmlFor="published" className="text-sm font-medium text-foreground/80">
+          <label htmlFor="published" className="text-sm font-medium text-[var(--text-secondary)]">
             Tampilkan di katalog (published)
           </label>
         </div>
@@ -362,21 +363,21 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
 
       <div>
         <div className="mb-1 flex items-center justify-between">
-          <label htmlFor="description" className="block text-sm font-medium text-foreground/80">
+          <label htmlFor="description" className="block text-sm font-medium text-[var(--text-secondary)]">
             Deskripsi
           </label>
           <button
             type="button"
             onClick={handleAiSuggest}
             disabled={aiLoading}
-            className="inline-flex items-center gap-1 rounded-full border border-ct-teal/20 px-3 py-1 text-xs font-semibold text-ct-blue hover:bg-ct-teal/10 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--brand-muted)] disabled:opacity-60"
           >
             {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
             Isi dengan AI
           </button>
         </div>
-        {aiError ? <p className="mb-1 text-sm font-medium text-ct-red">{aiError}</p> : null}
-        <p className="mb-2 text-xs text-foreground/50">
+        {aiError ? <p className="mb-1 text-sm font-medium text-[var(--danger)]">{aiError}</p> : null}
+        <p className="mb-2 text-xs text-[var(--text-muted)]">
           AI akan mengisi deskripsi, kategori, rentang usia, dan satuan berdasarkan nama produk dan foto pertama. Anda tetap bisa mengubahnya secara manual jika kurang sesuai.
         </p>
         <textarea
@@ -385,7 +386,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
           rows={4}
           ref={descriptionRef}
           defaultValue={defaultValues?.description}
-          className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
+          className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 focus:border-[var(--border-focus)] focus:outline-none"
         />
       </div>
 
@@ -395,7 +396,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
           <button
             type="button"
             onClick={() => setImages((rows) => [...rows, { url: "", alt: "" }])}
-            className="inline-flex items-center gap-1 rounded-full border border-ct-teal/20 px-3 py-1.5 text-sm font-semibold text-ct-blue hover:bg-ct-teal/10"
+            className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-3 py-1.5 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--brand-muted)]"
           >
             <Plus size={16} />
             Tambah Foto
@@ -403,14 +404,14 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
         </div>
 
         {uploadError ? (
-          <p className="mb-2 text-sm font-medium text-ct-red">{uploadError}</p>
+          <p className="mb-2 text-sm font-medium text-[var(--danger)]">{uploadError}</p>
         ) : null}
 
         <div className="space-y-2">
           {images.map((image, index) => (
-            <div key={index} className="flex gap-2 rounded-lg border border-ct-teal/10 p-2">
+            <div key={index} className="flex gap-2 rounded-lg border border-[var(--border)] p-2">
               <label
-                className="relative flex h-20 w-20 shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-ct-teal/30 bg-ct-teal/5 text-center text-[11px] text-foreground/50 hover:border-ct-teal/50"
+                className="relative flex h-20 w-20 shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--brand-muted)] text-center text-[11px] text-[var(--text-muted)] hover:border-ct-teal/50"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
@@ -429,7 +430,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                 )}
                 {uploadingIndex === index ? (
                   <span className="absolute inset-0 flex items-center justify-center bg-white/70">
-                    <Loader2 size={20} className="animate-spin text-ct-teal" />
+                    <Loader2 size={20} className="animate-spin text-[var(--brand)]" />
                   </span>
                 ) : null}
                 <input
@@ -454,7 +455,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                       rows.map((row, i) => (i === index ? { ...row, url: e.target.value } : row))
                     )
                   }
-                  className="rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 text-sm focus:border-ct-teal focus:outline-none"
+                  className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm focus:border-[var(--border-focus)] focus:outline-none"
                 />
                 <input
                   type="text"
@@ -465,14 +466,14 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                       rows.map((row, i) => (i === index ? { ...row, alt: e.target.value } : row))
                     )
                   }
-                  className="rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 text-sm focus:border-ct-teal focus:outline-none"
+                  className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm focus:border-[var(--border-focus)] focus:outline-none"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={() => setImages((rows) => rows.filter((_, i) => i !== index))}
-                className="self-start rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
+                className="self-start rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--danger-muted)] hover:text-[var(--danger)]"
                 aria-label="Hapus foto"
               >
                 <Trash2 size={18} />
@@ -491,7 +492,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
             onClick={() =>
               setVariants((rows) => [...rows, { name: "", sku: "", price: "", stock: "", image: "" }])
             }
-            className="inline-flex items-center gap-1 rounded-full border border-ct-teal/20 px-3 py-1.5 text-sm font-semibold text-ct-blue hover:bg-ct-teal/10"
+            className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-3 py-1.5 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--brand-muted)]"
           >
             <Plus size={16} />
             Tambah Varian
@@ -500,7 +501,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
 
         <div className="space-y-2">
           {variants.map((variant, index) => (
-            <div key={index} className="grid grid-cols-2 gap-2 rounded-lg border border-ct-teal/10 p-3 sm:grid-cols-5">
+            <div key={index} className="grid grid-cols-2 gap-2 rounded-lg border border-[var(--border)] p-3 sm:grid-cols-5">
               <input
                 type="text"
                 placeholder="Nama varian"
@@ -510,7 +511,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                     rows.map((row, i) => (i === index ? { ...row, name: e.target.value } : row))
                   )
                 }
-                className="rounded-lg border border-ct-teal/20 bg-white px-3 py-2 text-sm focus:border-ct-teal focus:outline-none sm:col-span-2"
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm focus:border-[var(--border-focus)] focus:outline-none sm:col-span-2"
               />
               <input
                 type="text"
@@ -521,7 +522,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                     rows.map((row, i) => (i === index ? { ...row, sku: e.target.value } : row))
                   )
                 }
-                className="rounded-lg border border-ct-teal/20 bg-white px-3 py-2 text-sm focus:border-ct-teal focus:outline-none"
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm focus:border-[var(--border-focus)] focus:outline-none"
               />
               <input
                 type="number"
@@ -533,7 +534,7 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                     rows.map((row, i) => (i === index ? { ...row, price: e.target.value } : row))
                   )
                 }
-                className="rounded-lg border border-ct-teal/20 bg-white px-3 py-2 text-sm focus:border-ct-teal focus:outline-none"
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm focus:border-[var(--border-focus)] focus:outline-none"
               />
               <div className="flex gap-2">
                 <input
@@ -546,12 +547,12 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
                       rows.map((row, i) => (i === index ? { ...row, stock: e.target.value } : row))
                     )
                   }
-                  className="w-full rounded-lg border border-ct-teal/20 bg-white px-3 py-2 text-sm focus:border-ct-teal focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm focus:border-[var(--border-focus)] focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setVariants((rows) => rows.filter((_, i) => i !== index))}
-                  className="shrink-0 rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
+                  className="shrink-0 rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--danger-muted)] hover:text-[var(--danger)]"
                   aria-label="Hapus varian"
                 >
                   <Trash2 size={18} />
@@ -564,18 +565,17 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
       </div>
 
       {state.error ? (
-        <p className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-600">
+        <p className="rounded-lg bg-[var(--danger-muted)] px-4 py-2 text-sm font-medium text-[var(--danger)]">
           {state.error}
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-full bg-ct-teal px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-ct-teal-dark disabled:opacity-60"
+      <SubmitButton
+        pendingLabel="Menyimpan..."
+        className="rounded-full px-6 py-2.5 shadow-sm"
       >
-        {pending ? "Menyimpan..." : submitLabel}
-      </button>
+        {submitLabel}
+      </SubmitButton>
     </form>
   );
 }
