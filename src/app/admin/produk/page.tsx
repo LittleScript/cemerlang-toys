@@ -5,7 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { cn, formatRupiah } from "@/lib/utils";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { deleteProduct, toggleProductPublished, toggleProductStock } from "./actions";
+import { PageHeader } from "@/components/admin/ui/page-header";
+import { StatusBadge } from "@/components/admin/ui/status-badge";
+import { SearchInput } from "@/components/admin/ui/search-input";
+import {
+  deleteProduct,
+  toggleProductPublished,
+  toggleProductStock,
+} from "./actions";
 
 const PAGE_SIZE = 20;
 
@@ -13,19 +20,26 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export default async function AdminProdukPage(props: PageProps<"/admin/produk">) {
+export default async function AdminProdukPage(
+  props: PageProps<"/admin/produk">
+) {
   await requireAdmin();
 
   const searchParams = await props.searchParams;
   const q = firstParam(searchParams.q)?.trim() ?? "";
   const page = Math.max(1, Number(firstParam(searchParams.page)) || 1);
 
-  const where = q ? { name: { contains: q, mode: "insensitive" as const } } : {};
+  const where = q
+    ? { name: { contains: q, mode: "insensitive" as const } }
+    : {};
 
   const [products, total] = await Promise.all([
     prisma.product.findMany({
       where,
-      include: { category: true, images: { orderBy: { order: "asc" }, take: 1 } },
+      include: {
+        category: true,
+        images: { orderBy: { order: "asc" }, take: 1 },
+      },
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
@@ -45,39 +59,37 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-heading text-2xl font-bold text-ct-blue">Kelola Produk</h1>
+      <PageHeader title="Kelola Produk">
         <Link
           href="/admin/produk/baru"
-          className="inline-flex items-center gap-2 rounded-full bg-ct-teal px-5 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-ct-teal-dark"
+          className="inline-flex items-center gap-2 rounded-full bg-[var(--brand)] px-5 py-2.5 font-semibold text-[var(--text-on-brand)] shadow-sm transition-colors hover:bg-[var(--brand-hover)]"
         >
           <Plus size={18} />
           Tambah Produk
         </Link>
-      </div>
+      </PageHeader>
 
-      <form action="/admin/produk" className="mt-4">
-        <input
-          type="search"
-          name="q"
-          defaultValue={q}
-          placeholder="Cari nama produk..."
-          className="w-full max-w-sm rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
-        />
-      </form>
+      <SearchInput
+        placeholder="Cari nama produk..."
+        defaultValue={q}
+        action="/admin/produk"
+        className="max-w-sm"
+      />
 
       <div className="mt-6 space-y-2">
         {products.length === 0 ? (
-          <p className="rounded-2xl border border-ct-teal/10 bg-white p-6 text-center text-foreground/60">
+          <p className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 text-center text-[var(--text-muted)]"
+            style={{ borderRadius: "var(--radius-lg)" }}>
             Belum ada produk.
           </p>
         ) : (
           products.map((product) => (
             <div
               key={product.id}
-              className="flex items-center gap-3 rounded-xl border border-ct-teal/10 bg-white px-4 py-3"
+              className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
+              style={{ borderRadius: "var(--radius-lg)" }}
             >
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-ct-cream">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[var(--bg)]">
                 {product.images[0] ? (
                   <Image
                     src={product.images[0].url}
@@ -90,55 +102,36 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-ct-blue">{product.name}</p>
-                <p className="text-sm text-foreground/60">
+                <p className="truncate font-semibold text-[var(--text-primary)]">
+                  {product.name}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">
                   {product.category.name}
-                  {product.price ? ` · ${formatRupiah(product.discountPrice ?? product.price)}` : ""}
+                  {product.price
+                    ? ` · ${formatRupiah(product.discountPrice ?? product.price)}`
+                    : ""}
                 </p>
               </div>
 
-              <form
-                action={async () => {
-                  "use server";
-                  await toggleProductStock(
-                    product.id,
-                    product.stockStatus === "OUT_OF_STOCK" ? "IN_STOCK" : "OUT_OF_STOCK"
-                  );
-                }}
+              <StatusBadge
+                variant={
+                  product.stockStatus === "OUT_OF_STOCK" ? "danger" : "success"
+                }
               >
-                <SubmitButton
-                  className={cn(
-                    "rounded-full px-3 py-1 text-xs font-semibold text-white transition-colors",
-                    product.stockStatus === "OUT_OF_STOCK"
-                      ? "bg-ct-red hover:bg-ct-red/80"
-                      : "bg-ct-green hover:bg-ct-green/80"
-                  )}
-                >
-                  {product.stockStatus === "OUT_OF_STOCK" ? "Stok Habis" : "Tersedia"}
-                </SubmitButton>
-              </form>
+                {product.stockStatus === "OUT_OF_STOCK"
+                  ? "Stok Habis"
+                  : "Tersedia"}
+              </StatusBadge>
 
-              <form
-                action={async () => {
-                  "use server";
-                  await toggleProductPublished(product.id, !product.published);
-                }}
+              <StatusBadge
+                variant={product.published ? "success" : "muted"}
               >
-                <SubmitButton
-                  className={cn(
-                    "rounded-full px-3 py-1 text-xs font-semibold",
-                    product.published
-                      ? "bg-ct-teal/10 text-ct-teal-dark"
-                      : "bg-foreground/10 text-foreground/50"
-                  )}
-                >
-                  {product.published ? "Published" : "Draft"}
-                </SubmitButton>
-              </form>
+                {product.published ? "Published" : "Draft"}
+              </StatusBadge>
 
               <Link
                 href={`/admin/produk/${product.id}`}
-                className="rounded-full p-2 text-foreground/50 hover:bg-ct-teal/10 hover:text-ct-teal-dark"
+                className="rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--brand-muted)] hover:text-[var(--brand)]"
                 aria-label="Edit"
               >
                 <Pencil size={18} />
@@ -151,7 +144,8 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
                 }}
               >
                 <SubmitButton
-                  className="rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
+                  variant="ghost"
+                  className="rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--danger-muted)] hover:text-[var(--danger)]"
                   aria-label="Hapus"
                 >
                   <Trash2 size={18} />
@@ -170,7 +164,9 @@ export default async function AdminProdukPage(props: PageProps<"/admin/produk">)
               href={pageHref(p)}
               className={cn(
                 "flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors",
-                p === page ? "bg-ct-teal text-white" : "bg-white text-foreground/70 hover:bg-ct-teal/10"
+                p === page
+                  ? "bg-[var(--brand)] text-[var(--text-on-brand)]"
+                  : "bg-[var(--surface)] text-[var(--text-muted)] hover:bg-[var(--brand-muted)]"
               )}
             >
               {p}

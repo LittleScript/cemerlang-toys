@@ -5,13 +5,18 @@ import { requireAdmin } from "@/lib/admin";
 import { CategoryIcon } from "@/components/category-icon";
 import { CategoryForm } from "@/components/admin/category-form";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { PageHeader } from "@/components/admin/ui/page-header";
 import { createCategory, deleteCategory } from "./actions";
 
-export default async function AdminKategoriPage(props: PageProps<"/admin/kategori">) {
+export default async function AdminKategoriPage(
+  props: PageProps<"/admin/kategori">
+) {
   await requireAdmin();
 
   const searchParams = await props.searchParams;
-  const error = Array.isArray(searchParams.error) ? searchParams.error[0] : searchParams.error;
+  const error = Array.isArray(searchParams.error)
+    ? searchParams.error[0]
+    : searchParams.error;
 
   const categories = await prisma.category.findMany({
     orderBy: { order: "asc" },
@@ -20,18 +25,26 @@ export default async function AdminKategoriPage(props: PageProps<"/admin/kategor
 
   return (
     <div>
-      <h1 className="font-heading text-2xl font-bold text-ct-blue">Kelola Kategori</h1>
+      <PageHeader title="Kelola Kategori" />
 
       {error === "kategori-dipakai" ? (
-        <p className="mt-4 rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-600">
+        <p className="mt-4 rounded-lg bg-[var(--danger-muted)] px-4 py-2 text-sm font-medium text-[var(--danger)]">
           Kategori tidak bisa dihapus karena masih dipakai oleh produk.
         </p>
       ) : null}
 
-      <div className="mt-6 rounded-2xl border border-ct-teal/10 bg-white p-4">
-        <h2 className="font-heading font-semibold text-foreground">Tambah Kategori</h2>
+      <div
+        className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4"
+        style={{ borderRadius: "var(--radius-lg)" }}
+      >
+        <h2 className="font-heading font-semibold text-[var(--text-primary)]">
+          Tambah Kategori
+        </h2>
         <div className="mt-3">
-          <CategoryForm action={createCategory} submitLabel="Tambah Kategori" />
+          <CategoryForm
+            action={createCategory}
+            submitLabel="Tambah Kategori"
+          />
         </div>
       </div>
 
@@ -39,16 +52,19 @@ export default async function AdminKategoriPage(props: PageProps<"/admin/kategor
         {categories.map((category) => (
           <div
             key={category.id}
-            className="flex items-center justify-between gap-3 rounded-xl border border-ct-teal/10 bg-white px-4 py-3"
+            className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
           >
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ct-teal/10 text-ct-teal-dark">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--brand-muted)] text-[var(--brand)]">
                 <CategoryIcon name={category.icon} size={20} />
               </span>
               <div>
-                <p className="font-semibold text-ct-blue">{category.name}</p>
-                <p className="text-sm text-foreground/60">
-                  /{category.slug} &middot; {category._count.products} produk &middot; urutan {category.order}
+                <p className="font-semibold text-[var(--text-primary)]">
+                  {category.name}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">
+                  /{category.slug} &middot; {category._count.products} produk
+                  &middot; urutan {category.order}
                 </p>
               </div>
             </div>
@@ -56,7 +72,7 @@ export default async function AdminKategoriPage(props: PageProps<"/admin/kategor
             <div className="flex gap-2">
               <Link
                 href={`/admin/kategori/${category.id}`}
-                className="rounded-full p-2 text-foreground/50 hover:bg-ct-teal/10 hover:text-ct-teal-dark"
+                className="rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--brand-muted)] hover:text-[var(--brand)]"
                 aria-label="Edit"
               >
                 <Pencil size={18} />
@@ -68,7 +84,8 @@ export default async function AdminKategoriPage(props: PageProps<"/admin/kategor
                 }}
               >
                 <SubmitButton
-                  className="rounded-full p-2 text-foreground/50 hover:bg-ct-red/10 hover:text-ct-red"
+                  variant="ghost"
+                  className="rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--danger-muted)] hover:text-[var(--danger)]"
                   aria-label="Hapus"
                 >
                   <Trash2 size={18} />
