@@ -16,6 +16,9 @@ cutover or changes Caddy automatically.
 - Temporary origin: `https://cemerlangtoys.21kent.com` (configuration only;
   no DNS/Caddy activation is performed by this repository)
 - Expected Google callback: `https://cemerlangtoys.21kent.com/api/auth/callback/google`
+- Production startup validates the required environment contract and fails
+  clearly when a critical value is missing. Build-time generation remains
+  independent of production credentials.
 
 The production compose file is intentionally separate from `21KentWebsite`.
 The image tag must be an immutable commit SHA; `latest` is not an accepted
@@ -43,6 +46,12 @@ script is therefore a template and is not activated by this project. A release
 is not backup-ready until the owner-approved encryption/retention policy is
 selected, a NAS copy is checksum-verified, and that copy is restored into an
 isolated database and directory.
+
+The Phase 1C test artifact reached the Synology receive-only path through the
+existing Syncthing/Agent Bus operation. Its database and upload payloads were
+checksum-verified and restored from the NAS copy. This proves the data path,
+not recurring operations: a Cemerlang-specific scheduled job and retention
+rule are still required before public cutover.
 
 ## Rollback
 

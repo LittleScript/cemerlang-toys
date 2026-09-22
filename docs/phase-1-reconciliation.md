@@ -15,9 +15,9 @@ procedure and must not be treated as authorization to change production.
 - **UNKNOWN:** the exact Git SHA used by the current Vercel deployment. Route
   evidence is consistent with `origin/main` or another older source because
   production lacks `/tentang`, which exists only in the local line of work.
-- **ACTIVE engineering baseline:** local `main` at the audited HEAD. It is not
-  yet a shared or released source of truth because it is 21 commits ahead of
-  `origin/main`.
+- **ACTIVE engineering baseline:** `origin/main` after the approved push. Local
+  `main` and `origin/main` are synchronized at the authoritative SHA reported
+  in the Phase 1C release notes.
 
 ## Verified data state
 
@@ -123,12 +123,21 @@ shape. The application image does not own mutable upload data.
   folder named `21Kent VPS Backups`, with an `aspri-nas` peer configured. This
   is the reusable reference pattern; Cemerlang must use a dedicated artifact
   name and directory within that contract.
-- Current live evidence does not prove a Cemerlang artifact has reached the NAS
-  or has been restored from the NAS copy. The older encrypted contact-backup
-  script is not active on the host: `age` is absent, its service is not loaded,
-  and its env file has no destination/recipient values. Therefore backup is
-  still NOT READY, despite the existing general Syncthing pipeline being
-  active for other workloads.
+- A Cemerlang artifact was created at
+  `cemerlang-toys/20260922T150943Z/` in the existing Syncthing send-only
+  folder. Syncthing reported the folder idle and fully in sync with the NAS
+  peer. The NAS receive-only path was independently located through the
+  existing Agent Bus, and all four files were found there with matching
+  checksums. The database dump and uploads archive were then transferred from
+  that NAS path and restored in isolation successfully.
+- The older encrypted contact-backup script is not active on the host: `age` is
+  absent, its service is not loaded, and its env file has no destination or
+  recipient values. The verified Cemerlang artifact therefore has Syncthing
+  transport encryption only; artifact-level encryption is not present.
+- A recurring Cemerlang backup schedule and dedicated retention/prune job are
+  not yet active. The single-artifact backup/restore proof is PASS, but public
+  cutover remains blocked until recurring generation and retention are wired to
+  the existing operational schedule.
 - A target VPS logical dump was also created from PostgreSQL 16.14 (33,479
   bytes, checksum recorded outside the repository) and restored into isolated
   PostgreSQL 18 successfully. Representative counts were 24 products, 12
@@ -151,8 +160,8 @@ redirects only.
 - Whether the audited Neon database is definitely the Vercel runtime database:
   UNKNOWN until Vercel environment metadata or runtime evidence is checked.
 - Current OAuth authorized origins/callbacks and production `AUTH_URL`: UNKNOWN.
-- Exact Syncthing NAS-side path and a Cemerlang artifact/restore proof:
-  UNKNOWN; the VPS-side sendonly folder and NAS peer are verified.
+- Exact NAS-side Cemerlang path and artifact/restore proof: VERIFIED for the
+  test artifact through Agent Bus and the Synology receive-only folder.
 - Owner approval of factual marketing claims: required before SEO structured
   data or new public copy is authored.
 
@@ -210,6 +219,8 @@ remaining consumers.
   rotation. The exact procedure is documented in
   `deploy/postgres-root-rotation.md`; rotation was not attempted because it
   affects shared recovery infrastructure.
-- **FOUNDATION BLOCKER:** no NAS-side Cemerlang artifact and isolated restore
-  from that copy has been proven. General Syncthing peer configuration is not
-  the same as restore evidence.
+- **PASS:** one Cemerlang artifact reached NAS, checksum verification passed,
+  and database/uploads restore from the NAS copy passed.
+- **FOUNDATION BLOCKER:** recurring Cemerlang backup scheduling and effective
+  retention are not yet installed. The one-off proof must not be mistaken for
+  an operational backup contract.
