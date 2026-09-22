@@ -159,3 +159,23 @@ The VPS now has dedicated Cemerlang roles and protected secret files:
 
 The legacy root credential still needs a coordinated rotation and audit of all
 remaining consumers.
+
+## Phase 1B validation record
+
+- Runtime security patch: Next `16.2.9 -> 16.3.5`, next-auth
+  `5.0.0-beta.31 -> beta.32`, and Prisma adapter `2.11.2 -> 2.11.3`.
+  The audited production dependency set now has zero critical findings; the
+  remaining findings are Prisma tooling/transitive advisories and are deferred
+  without a Prisma downgrade.
+- Middleware convention was migrated to `src/proxy.ts`; auth cookie checks and
+  admin/login redirects were preserved. The build no longer emits the
+  middleware deprecation warning.
+- The root app and admin layout are explicitly runtime-only so Docker builds do
+  not require a reachable database or production credential. This fixed the
+  release build failure caused by the placeholder build-time database URL.
+- Image `cemerlang-toys:3024fb1684a8b21a37db27f7f732576f7db9b44f` built on the
+  VPS successfully from the exact local commit. It started on the internal
+  `proxy` network with localhost-only port `13001`, became healthy, passed all
+  required public route checks, returned `307` for unauthenticated `/admin`,
+  and returned `405` for the expected GET `/api/upload` method restriction.
+  The RC container was removed after testing; no Caddy or DNS change occurred.
