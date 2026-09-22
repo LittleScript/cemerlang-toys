@@ -32,6 +32,12 @@ This is an empty target, not a migrated production database. The source of
 truth for the 24-product dataset must still be formally confirmed before any
 cutover.
 
+The conservative migration classification is **LIKELY AUTHORITATIVE LEGACY
+DATA** with high confidence, not mathematical proof: the dataset matches the
+current Prisma schema, application runtime, public product route behavior,
+catalog workflow, member records, and content rows. It remains a website
+dataset and is not evidence of the total business inventory.
+
 ## Target deployment shape
 
 The future application should be a separate release from `21KentWebsite`:
@@ -89,6 +95,32 @@ The recommended first target is persistent VPS storage backed up to NAS, unless
 the existing backup/restore test shows that object storage is operationally
 safer. No asset migration has been performed.
 
+The VPS bind mount `/opt/cemerlang-toys/uploads` has been created with owner
+UID/GID 1001 and mode 0750. A write, container replacement, read-only remount,
+checksum comparison, and cleanup test passed. NAS replication is not yet
+verified because no Cemerlang NAS destination is mounted/configured.
+
+The upload route now writes to a UUID filename through a temporary file and
+atomic rename, and the read route accepts only the generated UUID filename
+shape. The application image does not own mutable upload data.
+
+## Backup and restore evidence
+
+- A Neon custom-format backup was created with PostgreSQL 18.6 because the
+  Neon server reported 18.6 and the VPS PostgreSQL client is 16.14.
+- The backup size was 50,871 bytes and its SHA-256 was recorded outside the
+  repository. `pg_restore --list` validated 105 archive entries.
+- Full restore into isolated PostgreSQL 18 succeeded and reproduced the public
+  dataset counts.
+- The VPS PostgreSQL 16 server rejected the PostgreSQL 18 archive preamble
+  (`transaction_timeout`). The safe adaptation was to apply the Prisma baseline
+  to the empty VPS database and restore only public data after filtering the
+  incompatible statement. Public row counts and relations then validated.
+- The existing VPS backup script is not currently operationally ready: the
+  host has no `age` executable and its env file has no configured age recipient
+  or Cemerlang destination. No backup is marked READY until an off-host/NAS
+  destination, encryption tool, scheduled job, and restore test exist.
+
 ## Domain portability
 
 The application must read its canonical site origin from configuration (the
@@ -107,3 +139,23 @@ redirects only.
   UNKNOWN.
 - Owner approval of factual marketing claims: required before SEO structured
   data or new public copy is authored.
+
+## Security and secrets
+
+The active `/opt/docker-compose.yml` on the VPS contains a plaintext PostgreSQL
+root password. The active PostgreSQL container uses that root credential, but
+the audited production applications use separate roles (`contact_app` and
+`glitchtip`). Rotation was not performed because the root credential is still a
+shared administrative dependency and recovery/cutover coordination is not yet
+complete. The value is intentionally not recorded.
+
+The VPS now has dedicated Cemerlang roles and protected secret files:
+
+- `cemerlang_owner`: NOLOGIN schema/database owner
+- `cemerlang_migrator`: login role for controlled migrations
+- `cemerlang_app`: least-privilege application role
+- `/opt/cemerlang-secrets/app.env`: root:docker, mode 0640
+- `/opt/cemerlang-secrets/migrator.env`: root:root, mode 0600
+
+The legacy root credential still needs a coordinated rotation and audit of all
+remaining consumers.
