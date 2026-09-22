@@ -17,7 +17,7 @@ procedure and must not be treated as authorization to change production.
   production lacks `/tentang`, which exists only in the local line of work.
 - **ACTIVE engineering baseline:** `origin/main` after the approved push. Local
   `main` and `origin/main` are synchronized at the authoritative SHA reported
-  in this record: `9727da4a24a82206be54e11cb7850acdf66bfbe7`.
+  in this record: `21bc48cf8a82bbb6632117a665afcf79f741c921`.
 
 ## Verified data state
 
