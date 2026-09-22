@@ -20,6 +20,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pat
   }
 
   const filename = segments[0];
+  if (!/^[a-f0-9-]{36}\.(?:jpg|jpeg|png|webp|gif)$/i.test(filename)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   const contentType = CONTENT_TYPES[path.extname(filename).toLowerCase()];
   if (!contentType) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

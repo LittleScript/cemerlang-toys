@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, rename, unlink, writeFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
@@ -79,7 +79,19 @@ export async function POST(request: Request): Promise<NextResponse> {
   await mkdir(UPLOAD_DIR, { recursive: true });
 
   const filename = `${randomUUID()}${ext}`;
-  await writeFile(path.join(UPLOAD_DIR, filename), buffer);
+  const finalPath = path.join(UPLOAD_DIR, filename);
+  const tempPath = path.join(UPLOAD_DIR, `.${filename}.uploading`);
+
+  try {
+    // Complete the write before exposing the final URL. The UUID makes the
+    // destination collision-safe, while rename keeps readers from observing
+    // a partially written file during container or process interruption.
+    await writeFile(tempPath, buffer, { flag: "wx" });
+    await rename(tempPath, finalPath);
+  } catch (error) {
+    await unlink(tempPath).catch(() => undefined);
+    throw error;
+  }
 
   return NextResponse.json({ url: `/uploads/${filename}` });
 }
