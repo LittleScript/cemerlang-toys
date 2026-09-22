@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Cemerlang Toys backup before daily operational backup window
+
+[Timer]
+OnCalendar=*-*-* 13:20:00
+Persistent=true
+Unit=cemerlang-backup-pre.service
+
+[Install]
+WantedBy=timers.target

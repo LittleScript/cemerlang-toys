@@ -1,0 +1,9 @@
+[Unit]
+Description=Prepare Cemerlang Toys PostgreSQL and uploads backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/sbin/cemerlang-backup-pre.sh

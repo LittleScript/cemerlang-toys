@@ -50,8 +50,9 @@ isolated database and directory.
 The Phase 1C test artifact reached the Synology receive-only path through the
 existing Syncthing/Agent Bus operation. Its database and upload payloads were
 checksum-verified and restored from the NAS copy. This proves the data path,
-not recurring operations: a Cemerlang-specific scheduled job and retention
-rule are still required before public cutover.
+and the Cemerlang pre-backup systemd timer now generates the same dedicated
+artifact path daily. The existing NAS-side retention policy remains outside
+this application repository and must be observed during operations.
 
 ## Rollback
 
