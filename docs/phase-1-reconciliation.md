@@ -134,10 +134,11 @@ shape. The application image does not own mutable upload data.
   absent, its service is not loaded, and its env file has no destination or
   recipient values. The verified Cemerlang artifact therefore has Syncthing
   transport encryption only; artifact-level encryption is not present.
-- A recurring Cemerlang backup schedule and dedicated retention/prune job are
-  not yet active. The single-artifact backup/restore proof is PASS, but public
-  cutover remains blocked until recurring generation and retention are wired to
-  the existing operational schedule.
+- A recurring Cemerlang pre-backup systemd timer is now active daily at 13:20
+  WIB and a fresh run reached the NAS with checksum validation passing. A
+  dedicated retention/prune rule for the Cemerlang subdirectory is not yet
+  active; NAS retention remains governed by the existing operational policy
+  outside this repository.
 - A target VPS logical dump was also created from PostgreSQL 16.14 (33,479
   bytes, checksum recorded outside the repository) and restored into isolated
   PostgreSQL 18 successfully. Representative counts were 24 products, 12
@@ -221,6 +222,7 @@ remaining consumers.
   affects shared recovery infrastructure.
 - **PASS:** one Cemerlang artifact reached NAS, checksum verification passed,
   and database/uploads restore from the NAS copy passed.
-- **FOUNDATION BLOCKER:** recurring Cemerlang backup scheduling and effective
-  retention are not yet installed. The one-off proof must not be mistaken for
-  an operational backup contract.
+- **PASS:** recurring Cemerlang backup generation is installed and one timer
+  run has reached NAS with checksum validation passing.
+- **FOLLOW-UP:** effective retention/prune for the dedicated Cemerlang path is
+  not independently verified yet.
