@@ -9,6 +9,10 @@ import { Footer } from "@/components/layout/footer";
 import { SiteChrome } from "@/components/layout/site-chrome";
 import "./globals.css";
 
+// The shared header/footer read runtime content from PostgreSQL. Keep the
+// image build independent from production credentials and database reachability.
+export const dynamic = "force-dynamic";
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
