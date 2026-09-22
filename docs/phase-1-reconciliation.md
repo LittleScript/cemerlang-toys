@@ -120,6 +120,13 @@ shape. The application image does not own mutable upload data.
   host has no `age` executable and its env file has no configured age recipient
   or Cemerlang destination. No backup is marked READY until an off-host/NAS
   destination, encryption tool, scheduled job, and restore test exist.
+- A target VPS logical dump was also created from PostgreSQL 16.14 (33,479
+  bytes, checksum recorded outside the repository) and restored into isolated
+  PostgreSQL 18 successfully. Representative counts were 24 products, 12
+  categories, 24 product images, and 1 user.
+- A representative upload archive was created, extracted to an isolated
+  temporary directory, and checksum-verified successfully. This proves the
+  archive procedure locally, not NAS replication.
 
 ## Domain portability
 
