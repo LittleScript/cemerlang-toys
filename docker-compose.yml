@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: cemerlang
-      POSTGRES_PASSWORD: cemerlang
+      POSTGRES_PASSWORD: ${CEMERLANG_DB_PASSWORD:?CEMERLANG_DB_PASSWORD must be set}
       POSTGRES_DB: cemerlang_toys
     ports:
       - "5433:5432"
