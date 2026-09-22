@@ -13,7 +13,7 @@ COPY . .
 # prisma generate does NOT need a real DATABASE_URL — it only reads schema.prisma
 # to generate TypeScript types. The real connection happens at runtime.
 # Using a placeholder prevents credentials from being baked into the image (H-10).
-ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npx prisma generate
 RUN npm run build
 # Remove the placeholder so it's not in the final layer

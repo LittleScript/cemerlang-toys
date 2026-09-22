@@ -1,0 +1,6 @@
+# Candidate block for the approved cutover window only.
+# Do not append this block to the active Caddyfile before DNS/owner approval.
+
+cemerlangtoys.21kent.com {
+    reverse_proxy cemerlang-toys:3000
+}

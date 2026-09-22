@@ -51,9 +51,10 @@ DNS -> Caddy on 21Kent VPS -> cemerlang-toys:<git-sha> -> existing PostgreSQL
 ```
 
 The existing VPS has Docker, Caddy, a persistent PostgreSQL 16 container and
-an existing immutable image/release pattern for 21Kent. It does not yet have a
-Cemerlang service, Caddy host entry, release directory, backup job, or health
-check. Those are prerequisites for migration, not changes made in this phase.
+an existing immutable image/release pattern for 21Kent. The Cemerlang release
+candidate now has a separate compose contract, healthcheck, persistent upload
+mount, and internal smoke proof. It still has no active public Caddy host or
+DNS entry.
 
 The current repository Dockerfile is a viable starting point for a standalone
 Next.js image, but the current compose file is local-development oriented: it
@@ -116,10 +117,18 @@ shape. The application image does not own mutable upload data.
   (`transaction_timeout`). The safe adaptation was to apply the Prisma baseline
   to the empty VPS database and restore only public data after filtering the
   incompatible statement. Public row counts and relations then validated.
-- The existing VPS backup script is not currently operationally ready: the
-  host has no `age` executable and its env file has no configured age recipient
-  or Cemerlang destination. No backup is marked READY until an off-host/NAS
-  destination, encryption tool, scheduled job, and restore test exist.
+- The existing 21Kent backup architecture is a two-stage pattern: a systemd
+  pre-backup creates a validated PostgreSQL dump, then the Hermes full-backup
+  workflow creates a VPS archive and publishes it to a Syncthing `sendonly`
+  folder named `21Kent VPS Backups`, with an `aspri-nas` peer configured. This
+  is the reusable reference pattern; Cemerlang must use a dedicated artifact
+  name and directory within that contract.
+- Current live evidence does not prove a Cemerlang artifact has reached the NAS
+  or has been restored from the NAS copy. The older encrypted contact-backup
+  script is not active on the host: `age` is absent, its service is not loaded,
+  and its env file has no destination/recipient values. Therefore backup is
+  still NOT READY, despite the existing general Syncthing pipeline being
+  active for other workloads.
 - A target VPS logical dump was also created from PostgreSQL 16.14 (33,479
   bytes, checksum recorded outside the repository) and restored into isolated
   PostgreSQL 18 successfully. Representative counts were 24 products, 12
@@ -142,8 +151,8 @@ redirects only.
 - Whether the audited Neon database is definitely the Vercel runtime database:
   UNKNOWN until Vercel environment metadata or runtime evidence is checked.
 - Current OAuth authorized origins/callbacks and production `AUTH_URL`: UNKNOWN.
-- Existing NAS destination and restore-test contract for Cemerlang uploads:
-  UNKNOWN.
+- Exact Syncthing NAS-side path and a Cemerlang artifact/restore proof:
+  UNKNOWN; the VPS-side sendonly folder and NAS peer are verified.
 - Owner approval of factual marketing claims: required before SEO structured
   data or new public copy is authored.
 
@@ -186,3 +195,21 @@ remaining consumers.
   required public route checks, returned `307` for unauthenticated `/admin`,
   and returned `405` for the expected GET `/api/upload` method restriction.
   The RC container was removed after testing; no Caddy or DNS change occurred.
+
+## Phase 1C operational status
+
+- **ACTIVE:** environment contract template with `AUTH_GOOGLE_ID` /
+  `AUTH_GOOGLE_SECRET`, domain-portable `SITE_URL`/`AUTH_URL`, admin allowlist,
+  and optional AI variables. No credential values are committed.
+- **ACTIVE:** candidate Caddy block for `cemerlangtoys.21kent.com`; validating
+  the existing Caddyfile plus this block passed without changing active Caddy.
+- **ACTIVE:** release and rollback procedure uses immutable Git-SHA images,
+  the existing `proxy` network, host-backed uploads, protected env files, and
+  a health/smoke gate. Vercel remains transitional and untouched.
+- **DEFERRED MAINTENANCE ACTION:** shared PostgreSQL administrative credential
+  rotation. The exact procedure is documented in
+  `deploy/postgres-root-rotation.md`; rotation was not attempted because it
+  affects shared recovery infrastructure.
+- **FOUNDATION BLOCKER:** no NAS-side Cemerlang artifact and isolated restore
+  from that copy has been proven. General Syncthing peer configuration is not
+  the same as restore evidence.

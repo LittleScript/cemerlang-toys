@@ -2,10 +2,10 @@
 
 Supplier mainan anak terpercaya sejak 2002 — grosir, harga bersahabat untuk reseller & toko mainan di seluruh Indonesia.
 
-**Website:** [cemerlang-toys.vercel.app](https://cemerlang-toys.vercel.app)  
-**Stack:** Next.js 16 + React 19 + Prisma 7 + PostgreSQL (Neon / Docker self-host)  
-**Auth:** NextAuth v5 (Google OAuth, database sessions)  
-**Styling:** Tailwind CSS v4 + Framer Motion  
+**Website:** [cemerlang-toys.vercel.app](https://cemerlang-toys.vercel.app)
+**Stack:** Next.js 16 + React 19 + Prisma 7 + PostgreSQL (Neon / Docker self-host)
+**Auth:** NextAuth v5 (Google OAuth, database sessions)
+**Styling:** Tailwind CSS v4 + Framer Motion
 
 ---
 
@@ -13,9 +13,9 @@ Supplier mainan anak terpercaya sejak 2002 — grosir, harga bersahabat untuk re
 
 ```bash
 npm install
-cp .env.example .env.local   # isi AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, DATABASE_URL
+cp env.example.template .env.local   # isi AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, DATABASE_URL
 npx prisma generate
-npx prisma db push
+npx prisma migrate deploy
 npx tsx prisma/seed.ts
 npm run dev                   # http://localhost:3000
 ```
@@ -25,7 +25,7 @@ npm run dev                   # http://localhost:3000
 ```bash
 docker compose up -d
 # App: http://localhost:3001
-# DB:  postgresql://cemerlang:cemerlang@localhost:5433/cemerlang_toys
+# DB:  gunakan DATABASE_URL dari environment lokal; jangan tulis credential di repo
 ```
 
 ## Scripts
