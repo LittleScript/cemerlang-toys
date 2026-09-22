@@ -5,6 +5,10 @@ import { ToastProvider } from "@/components/admin/ui/toast";
 import { Sidebar } from "@/components/admin/sidebar";
 import { Topbar } from "@/components/admin/topbar";
 
+// Admin pages depend on the runtime database and session; never prerender them
+// during an image build with a placeholder DATABASE_URL.
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   await requireAdmin();
 
