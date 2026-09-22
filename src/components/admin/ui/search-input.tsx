@@ -23,6 +23,21 @@ type SearchInputProps = {
     }
 );
 
+type ServerSearchProps = {
+  placeholder?: string;
+  defaultValue?: string;
+  name?: string;
+  action?: string;
+  className?: string;
+};
+
+type ClientSearchProps = {
+  placeholder?: string;
+  defaultValue?: string;
+  onSearch: (query: string) => void;
+  className?: string;
+};
+
 export function SearchInput(props: SearchInputProps) {
   const { placeholder = "Cari...", defaultValue = "", className } = props;
   if (props.mode === "client") {
@@ -51,7 +66,7 @@ function ServerSearch({
   name = "q",
   action,
   className,
-}: any) {
+}: ServerSearchProps) {
   const formRef = useRef<HTMLFormElement>(null);
   return (
     <form
@@ -98,7 +113,7 @@ function ClientSearch({
   defaultValue,
   onSearch,
   className,
-}: any) {
+}: ClientSearchProps) {
   const [value, setValue] = useState(defaultValue);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);

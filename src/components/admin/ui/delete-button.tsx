@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/admin/ui/confirm-dialog";
-import { SubmitButton } from "@/components/ui/submit-button";
 import { cn } from "@/lib/utils";
 
 interface DeleteButtonProps {

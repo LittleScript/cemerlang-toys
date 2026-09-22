@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 import { Menu, User, LogOut, ChevronDown } from "lucide-react";
 import { Breadcrumb } from "@/components/admin/breadcrumb";
 import { ThemeToggle } from "@/components/admin/theme-toggle";
@@ -56,9 +57,11 @@ export function Topbar({ breadcrumbLabel }: { breadcrumbLabel?: string }) {
             className="flex items-center gap-2 rounded-lg p-1.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] transition-colors"
           >
             {session.user.image ? (
-              <img
+              <Image
                 src={session.user.image}
                 alt=""
+                width={28}
+                height={28}
                 className="h-7 w-7 rounded-full object-cover"
               />
             ) : (

@@ -4,15 +4,12 @@ import { Pencil, Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { cn, formatRupiah } from "@/lib/utils";
-import { SubmitButton } from "@/components/ui/submit-button";
 import { PageHeader } from "@/components/admin/ui/page-header";
 import { StatusBadge } from "@/components/admin/ui/status-badge";
 import { SearchInput } from "@/components/admin/ui/search-input";
 import { DeleteButton } from "@/components/admin/ui/delete-button";
 import {
   deleteProduct,
-  toggleProductPublished,
-  toggleProductStock,
 } from "./actions";
 
 const PAGE_SIZE = 20;

@@ -42,7 +42,7 @@ interface ProductFormProps {
 const initialState: ProductFormState = {};
 
 export function ProductForm({ action, categories, submitLabel, defaultValues }: ProductFormProps) {
-  const [state, formAction, pending] = useActionState(action, initialState);
+  const [state, formAction] = useActionState(action, initialState);
   const [categoryList, setCategoryList] = useState(categories);
   const [pendingCategoryId, setPendingCategoryId] = useState<string | null>(null);
   const [images, setImages] = useState<ImageRow[]>(defaultValues?.images ?? []);

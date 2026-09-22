@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -36,19 +36,28 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const queueRef = useRef<ToastItem[]>([]);
   const idRef = useRef(0);
+  const dismissToastRef = useRef<(id: number) => void>(() => undefined);
 
-  const removeToast = useCallback((id: number) => {
+  const dismissToast = useCallback((id: number) => {
     setToasts((prev) => {
       const next = prev.filter((t) => t.id !== id);
       if (queueRef.current.length > 0 && next.length < MAX_VISIBLE) {
         const queued = queueRef.current.shift()!;
         // Auto-dismiss the dequeued toast
-        setTimeout(() => removeToast(queued.id), DISMISS_MS);
+        setTimeout(() => dismissToastRef.current(queued.id), DISMISS_MS);
         return [...next, queued];
       }
       return next;
     });
   }, []);
+
+  useEffect(() => {
+    dismissToastRef.current = dismissToast;
+  }, [dismissToast]);
+
+  const scheduleDismiss = useCallback((id: number) => {
+    setTimeout(() => dismissToast(id), DISMISS_MS);
+  }, [dismissToast]);
 
   const addToast = useCallback((message: string, variant: ToastVariant) => {
     const id = ++idRef.current;
@@ -56,7 +65,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
     setToasts((prev) => {
       if (prev.length < MAX_VISIBLE) {
-        setTimeout(() => removeToast(id), DISMISS_MS);
+        scheduleDismiss(id);
         return [...prev, item];
       }
       // Queue: max 5, drop oldest queued if full
@@ -66,7 +75,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       queueRef.current.push(item);
       return prev;
     });
-  }, [removeToast]);
+  }, [scheduleDismiss]);
 
   const variantStyles: Record<ToastVariant, { bg: string; color: string }> = {
     success: { bg: 'var(--success-muted)', color: 'var(--success)' },
@@ -114,7 +123,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               >
                 <span className="flex-1">{t.message}</span>
                 <button
-                  onClick={() => removeToast(t.id)}
+                  onClick={() => dismissToast(t.id)}
                   className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
                   style={{ color: s.color }}
                   aria-label="Tutup notifikasi"
