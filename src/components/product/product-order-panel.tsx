@@ -1,35 +1,45 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Minus, Plus, ShoppingCart, Check } from "lucide-react";
 import { cn, formatRupiah } from "@/lib/utils";
 import { useCart } from "@/lib/cart-context";
 
 type Variant = { id: string; name: string; price: number | null; stock: number };
+type PackageLevel = {
+  id: string;
+  label: string;
+  contentQuantity: number | null;
+  contentUnit: string | null;
+  minimumOrderQuantity: number | null;
+  parentId: string | null;
+  isDefaultSellingUnit: boolean;
+};
 
 export function ProductOrderPanel({
   productId,
   slug,
   productName,
   imageUrl,
-  basePrice,
-  discountPrice,
-  unit,
+  legacyUnit,
+  memberPrice,
+  priceBasis,
+  packageLevels,
   variants,
   outOfStock,
-  isMember,
+  priceState,
 }: {
   productId: string;
   slug: string;
   productName: string;
   imageUrl?: string | null;
-  basePrice: number;
-  discountPrice?: number | null;
-  unit?: string | null;
+  legacyUnit?: string | null;
+  memberPrice?: number | null;
+  priceBasis?: string | null;
+  packageLevels: PackageLevel[];
   variants: Variant[];
   outOfStock: boolean;
-  isMember: boolean;
+  priceState: "ANONYMOUS" | "PENDING" | "REJECTED" | "HIDDEN" | "VISIBLE" | "UNAVAILABLE";
 }) {
   const { addItem } = useCart();
   const availableVariants = variants;
@@ -38,10 +48,13 @@ export function ProductOrderPanel({
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-  const price = selectedVariant?.price ?? discountPrice ?? basePrice;
+  const price = memberPrice ?? 0;
   const variantOutOfStock = selectedVariant ? selectedVariant.stock <= 0 : false;
-  const disabled = outOfStock || variantOutOfStock;
+  const inquiryOnly = outOfStock || variantOutOfStock;
   const maxQuantity = selectedVariant ? selectedVariant.stock : undefined;
+  const packageSummary = packageLevels
+    .map((level) => `${level.label}${level.contentQuantity && level.contentUnit ? `: ${level.contentQuantity} ${level.contentUnit}` : ""}${level.minimumOrderQuantity ? ` (min. ${level.minimumOrderQuantity} ${level.label})` : ""}`)
+    .join("; ");
 
   const handleAddToCart = () => {
     addItem(
@@ -52,9 +65,13 @@ export function ProductOrderPanel({
         variantId: selectedVariant?.id,
         variantName: selectedVariant?.name,
         price,
-        unit: unit ?? undefined,
+        unit: packageLevels.find((level) => level.isDefaultSellingUnit)?.label ?? legacyUnit ?? undefined,
         imageUrl,
-        maxQuantity,
+        maxQuantity: inquiryOnly ? undefined : maxQuantity,
+        priceVisible: priceState === "VISIBLE",
+        priceBasis: priceBasis ?? undefined,
+        availability: inquiryOnly ? "Habis — Konfirmasi ke Sales" : "Tersedia",
+        packageSummary: packageSummary || undefined,
       },
       quantity
     );
@@ -65,32 +82,35 @@ export function ProductOrderPanel({
   return (
     <div className="space-y-4">
       <div>
-        {isMember ? (
-          discountPrice ? (
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-ct-orange-dark">
-                {formatRupiah(discountPrice)}
-              </span>
-              <span className="text-base text-foreground/40 line-through">
-                {formatRupiah(basePrice)}
-              </span>
-              {unit ? <span className="text-sm text-foreground/60">/ {unit}</span> : null}
-            </div>
-          ) : (
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-ct-blue">{formatRupiah(basePrice)}</span>
-              {unit ? <span className="text-sm text-foreground/60">/ {unit}</span> : null}
-            </div>
-          )
+        {priceState === "VISIBLE" && memberPrice != null ? (
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-ct-blue">{formatRupiah(memberPrice)}</span>
+            {priceBasis ? <span className="text-sm text-foreground/60">/ {priceBasis}</span> : null}
+          </div>
+        ) : priceState === "UNAVAILABLE" ? (
+          <p className="text-sm text-foreground/60">Harga belum tersedia untuk akun ini.</p>
+        ) : priceState === "ANONYMOUS" || priceState === "PENDING" || priceState === "REJECTED" ? (
+          <p className="text-sm text-foreground/60">Harga tersedia untuk member yang telah disetujui.</p>
         ) : (
-          <p className="text-sm text-foreground/60">
-            <Link href="/login" className="font-semibold text-ct-teal-dark hover:underline">
-              Daftar / masuk
-            </Link>{" "}
-            untuk melihat harga.
-          </p>
+          <p className="text-sm text-foreground/60">Hubungi untuk harga.</p>
         )}
       </div>
+
+      {packageLevels.length > 0 ? (
+        <div className="space-y-1 text-sm text-foreground/70">
+          {packageLevels.map((level) => (
+            <p key={level.id}>
+              <span className="font-semibold text-foreground">{level.label}</span>
+              {level.contentQuantity && level.contentUnit
+                ? ` · isi ${level.contentQuantity} ${level.contentUnit}`
+                : ""}
+              {level.minimumOrderQuantity
+                ? ` · minimum ${level.minimumOrderQuantity} ${level.label}`
+                : ""}
+            </p>
+          ))}
+        </div>
+      ) : null}
 
       {availableVariants.length > 0 ? (
         <div>
@@ -121,7 +141,7 @@ export function ProductOrderPanel({
         </div>
       ) : null}
 
-      {!disabled ? (
+      {!inquiryOnly ? (
         <div>
           <p className="mb-2 text-sm font-semibold text-foreground">Jumlah</p>
           <div className="inline-flex items-center gap-3 rounded-full border border-ct-teal/20 px-2 py-1">
@@ -151,27 +171,22 @@ export function ProductOrderPanel({
       <button
         type="button"
         onClick={handleAddToCart}
-        disabled={disabled}
         className={cn(
           "inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-white shadow-md transition-colors sm:w-auto",
-          disabled
-            ? "cursor-not-allowed bg-foreground/30"
-            : added
+          added
               ? "bg-ct-green"
               : "bg-ct-teal hover:bg-ct-teal-dark"
         )}
       >
-        {disabled ? (
-          "Stok Habis"
-        ) : added ? (
+        {added ? (
           <>
             <Check size={18} />
-            Ditambahkan ke Keranjang
+            Ditambahkan ke Daftar Belanja
           </>
         ) : (
           <>
             <ShoppingCart size={18} />
-            Tambah ke Keranjang
+            {inquiryOnly ? "Tanyakan ke Sales" : "Tambah ke Daftar Belanja"}
           </>
         )}
       </button>

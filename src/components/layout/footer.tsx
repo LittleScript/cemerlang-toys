@@ -1,20 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { cache } from "react";
 import { MapPin, MessageCircle, Phone } from "lucide-react";
-import { prisma } from "@/lib/prisma";
 import { SITE_NAME, STORE_MAPS_URL, STORE_WHATSAPP } from "@/lib/constants";
-import { DEFAULT_SITE_CONTENT } from "@/lib/site-content";
-
-const getSiteContent = cache(async () => {
-  return await prisma.siteContent.findUnique({ where: { id: "default" } });
-});
 
 export async function Footer() {
   const year = new Date().getFullYear();
   const waLink = `https://wa.me/${STORE_WHATSAPP}`;
-  const siteContent = await getSiteContent();
-  const content = siteContent ?? DEFAULT_SITE_CONTENT;
 
   return (
     <footer className="border-t border-ct-teal/10 bg-white">
@@ -34,8 +25,8 @@ export async function Footer() {
               <span className="text-ct-blue">Medan</span>
             </span>
           </div>
-          <p className="text-sm text-foreground/70">{content.footerTagline}</p>
-          <p className="text-sm text-foreground/70">{content.footerGreeting}</p>
+          <p className="text-sm text-foreground/70">Katalog grosir mainan untuk kebutuhan toko dan reseller.</p>
+          <p className="text-sm text-foreground/70">Daftar Belanja diteruskan ke WhatsApp untuk konfirmasi sales.</p>
         </div>
 
         <div className="space-y-3">

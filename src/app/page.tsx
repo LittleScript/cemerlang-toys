@@ -1,190 +1,96 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { FadeIn } from "@/components/motion/fade-in";
-import { CategoryCard } from "@/components/category-card";
 import { ProductCard } from "@/components/product-card";
-import { SITE_NAME } from "@/lib/constants";
-import { DEFAULT_SITE_CONTENT } from "@/lib/site-content";
-import { DEFAULT_ABOUT_CONTENT } from "@/lib/about-content";
+import { SITE_NAME, STORE_WHATSAPP } from "@/lib/constants";
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const [categories, products, siteContent, aboutContent] = await Promise.all([
-    prisma.category.findMany({
-      orderBy: { order: "asc" },
-    }),
+  const [categories, products] = await Promise.all([
+    prisma.category.findMany({ orderBy: { order: "asc" }, take: 12 }),
     prisma.product.findMany({
       where: { published: true },
       orderBy: { createdAt: "desc" },
       take: 8,
-      include: { images: { orderBy: { order: "asc" }, take: 1 }, category: true },
+      include: {
+        images: { orderBy: { order: "asc" }, take: 1 },
+        category: true,
+        variants: { select: { id: true } },
+        packageLevels: {
+          where: { isDefaultSellingUnit: true },
+          select: { label: true, contentQuantity: true, contentUnit: true, minimumOrderQuantity: true },
+          take: 1,
+        },
+      },
     }),
-    prisma.siteContent.findUnique({ where: { id: "default" } }),
-    prisma.aboutContent.findUnique({ where: { id: "default" } }),
   ]);
 
-  const content = siteContent ?? DEFAULT_SITE_CONTENT;
-  const about = aboutContent ?? DEFAULT_ABOUT_CONTENT;
-
   return (
-    <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-ct-teal/15 via-ct-cream to-ct-orange/15">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:items-center md:py-24 lg:px-8">
-          <FadeIn>
-            {content.heroBadge ? (
-              <p className="mb-3 inline-block rounded-full bg-ct-orange/15 px-4 py-1 text-sm font-semibold text-ct-orange-dark">
-                {content.heroBadge}
-              </p>
-            ) : null}
-            <h1 className="font-heading text-4xl font-extrabold leading-tight text-ct-blue sm:text-5xl">
-              {content.heroTitle}
+    <div>
+      <section className="border-b border-ct-teal/10 bg-ct-cream">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.15fr_0.85fr] md:items-center md:py-16 lg:px-8">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-ct-teal-dark">Cemerlang Toys Medan</p>
+            <h1 className="mt-3 max-w-2xl font-heading text-4xl font-bold leading-tight text-ct-blue sm:text-5xl">
+              Cari stok mainan untuk toko dan reseller.
             </h1>
-            <p className="mt-4 max-w-md text-lg text-foreground/70">{content.heroSubtitle}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 rounded-full bg-ct-teal px-6 py-3 font-semibold text-white shadow-md transition-colors hover:bg-ct-teal-dark"
-              >
-                Buka Akses Harga Reseller
-                <ArrowRight size={18} />
-              </Link>
-              <Link
-                href="/katalog"
-                className="inline-flex items-center gap-2 rounded-full border-2 border-ct-orange px-6 py-3 font-semibold text-ct-orange-dark transition-colors hover:bg-ct-orange/10"
-              >
-                Lihat Katalog
-              </Link>
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-foreground/70">
+              Jelajahi katalog grosir, susun Daftar Belanja, lalu kirim kebutuhan Anda ke CT Rangers melalui WhatsApp.
+            </p>
+            <form action="/katalog" className="mt-7 flex max-w-xl gap-2">
+              <label htmlFor="home-search" className="sr-only">Cari produk</label>
+              <div className="relative min-w-0 flex-1">
+                <Search size={19} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-foreground/45" />
+                <input id="home-search" name="q" placeholder="Cari nama produk atau nama yang biasa dipakai..." className="w-full rounded-lg border border-ct-teal/20 bg-white py-3 pl-11 pr-3 outline-none focus:border-ct-teal" />
+              </div>
+              <button type="submit" className="rounded-lg bg-ct-teal px-5 py-3 font-semibold text-white hover:bg-ct-teal-dark">Cari</button>
+            </form>
+            <div className="mt-4 flex flex-wrap gap-3 text-sm">
+              <Link href="/katalog" className="inline-flex items-center gap-2 font-semibold text-ct-teal-dark">Lihat seluruh katalog <ArrowRight size={16} /></Link>
+              <Link href="#cara-order" className="font-semibold text-foreground/65 hover:text-foreground">Cara order</Link>
             </div>
-          </FadeIn>
-
-          <FadeIn delay={0.15} className="relative mx-auto hidden w-full max-w-sm md:block">
-            <div className="relative aspect-square w-full">
-              <Image
-                src="/logo-cemerlang-toys.png"
-                alt={SITE_NAME}
-                fill
-                className="object-contain drop-shadow-xl"
-                priority
-              />
+          </div>
+          <div className="relative mx-auto w-full max-w-sm md:justify-self-end">
+            <div className="relative aspect-square overflow-hidden rounded-2xl bg-white/70 p-5">
+              <Image src="/logo-cemerlang-toys.png" alt={SITE_NAME} fill priority sizes="(max-width: 768px) 90vw, 360px" className="object-contain p-5" />
             </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* Trust strip */}
-      <section className="border-b border-ct-teal/10 bg-white py-6">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-4 text-center sm:grid-cols-4">
-            <FadeIn>
-              <p className="font-heading text-xl font-extrabold text-ct-blue sm:text-2xl">
-                {about.stat1Value}
-              </p>
-              <p className="text-xs text-foreground/60 sm:text-sm">{about.stat1Label}</p>
-            </FadeIn>
-            <FadeIn delay={0.05}>
-              <p className="font-heading text-xl font-extrabold text-ct-blue sm:text-2xl">
-                {about.stat2Value}
-              </p>
-              <p className="text-xs text-foreground/60 sm:text-sm">{about.stat2Label}</p>
-            </FadeIn>
-            <FadeIn delay={0.1}>
-              <p className="font-heading text-xl font-extrabold text-ct-blue sm:text-2xl">
-                {about.stat3Value}
-              </p>
-              <p className="text-xs text-foreground/60 sm:text-sm">{about.stat3Label}</p>
-            </FadeIn>
-            <FadeIn delay={0.15}>
-              <p className="font-heading text-xl font-extrabold text-ct-blue sm:text-2xl">
-                {about.stat4Value}
-              </p>
-              <p className="text-xs text-foreground/60 sm:text-sm">{about.stat4Label}</p>
-            </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* Featured categories */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-        <FadeIn className="mb-8 text-center">
-          <h2 className="font-heading text-3xl font-bold text-ct-blue">Kategori Pilihan</h2>
-          <p className="mt-2 text-foreground/70">
-            Lebih dari 100 produk dalam berbagai kategori, stok terus berputar
-          </p>
-        </FadeIn>
-
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {categories.map((category, index) => (
-            <FadeIn key={category.id} delay={index * 0.04}>
-              <CategoryCard name={category.name} slug={category.slug} icon={category.icon} />
-            </FadeIn>
-          ))}
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex items-end justify-between gap-4">
+          <div><p className="text-sm font-semibold text-ct-teal-dark">Mulai dari kebutuhan Anda</p><h2 className="mt-1 font-heading text-2xl font-bold text-ct-blue">Kategori produk</h2></div>
+          <Link href="/katalog" className="text-sm font-semibold text-ct-teal-dark">Semua kategori</Link>
+        </div>
+        <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
+          {categories.map((category) => <Link key={category.id} href={`/katalog?kategori=${category.slug}`} className="shrink-0 border-b-2 border-ct-teal/20 px-1 py-2 text-sm font-semibold text-foreground/75 hover:border-ct-teal hover:text-ct-teal-dark">{category.name}</Link>)}
         </div>
       </section>
 
-      {/* Product highlight */}
-      <section className="bg-white py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <FadeIn className="mb-8 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
-            <div>
-              <h2 className="font-heading text-3xl font-bold text-ct-blue">Produk Terbaru</h2>
-              <p className="mt-2 text-foreground/70">
-                Daftar &amp; masuk untuk melihat harga, deskripsi, dan varian lengkap
-              </p>
-            </div>
-            <Link
-              href="/katalog"
-              className="inline-flex items-center gap-1 font-semibold text-ct-teal-dark hover:text-ct-teal"
-            >
-              Lihat semua <ArrowRight size={16} />
-            </Link>
-          </FadeIn>
-
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-            {products.map((product, index) => (
-              <FadeIn key={product.id} delay={index * 0.04}>
-                <ProductCard
-                  productId={product.id}
-                  slug={product.slug}
-                  name={product.name}
-                  categoryName={product.category.name}
-                  imageUrl={product.images[0]?.url}
-                  unit={product.unit}
-                  stockStatus={product.stockStatus}
-                />
-              </FadeIn>
-            ))}
+      <section className="border-y border-ct-teal/10 bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between gap-4"><div><p className="text-sm font-semibold text-ct-teal-dark">Update katalog</p><h2 className="mt-1 font-heading text-2xl font-bold text-ct-blue">Produk terbaru</h2></div><Link href="/katalog" className="text-sm font-semibold text-ct-teal-dark">Lihat semua</Link></div>
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {products.map((product) => <ProductCard key={product.id} productId={product.id} slug={product.slug} name={product.name} categoryName={product.category.name} imageUrl={product.images[0]?.url} unit={product.unit} stockStatus={product.stockStatus} variantCount={product.variants.length} packageLevel={product.packageLevels[0]} />)}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-ct-blue">
-        <FadeIn className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
-          <h2 className="font-heading text-3xl font-bold text-white">{content.ctaTitle}</h2>
-          <p className="mx-auto mt-3 max-w-xl text-white/80">{content.ctaSubtitle}</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 rounded-full bg-ct-orange px-6 py-3 font-semibold text-white shadow-md transition-colors hover:bg-ct-orange-dark"
-            >
-              Daftar Sekarang
-              <ArrowRight size={18} />
-            </Link>
-            <a
-              href="https://wa.me/6281260192002"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border-2 border-white/40 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
-            >
-              <MessageCircle size={18} />
-              Hubungi CT Rangers
-            </a>
-          </div>
-        </FadeIn>
+      <section id="cara-order" className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[0.8fr_1.2fr] lg:px-8">
+        <div><p className="text-sm font-semibold text-ct-teal-dark">Alur pembelian</p><h2 className="mt-1 font-heading text-2xl font-bold text-ct-blue">Cara order tetap manusiawi.</h2><p className="mt-3 text-foreground/70">Website membantu menyiapkan kebutuhan Anda. CT Rangers mengonfirmasi harga, ketersediaan, dan detail akhir melalui WhatsApp.</p></div>
+        <ol className="grid gap-3 sm:grid-cols-2">
+          {["Pilih produk dari katalog", "Tambahkan ke Daftar Belanja", "Periksa unit, kemasan, dan jumlah", "Kirim ke WhatsApp untuk dikonfirmasi"].map((step, index) => <li key={step} className="flex gap-3 border-l-2 border-ct-orange px-4 py-3"><span className="font-heading font-bold text-ct-orange-dark">0{index + 1}</span><span className="font-medium text-foreground/80">{step}</span></li>)}
+        </ol>
+      </section>
+
+      <section className="bg-ct-blue text-white">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <div><p className="text-sm font-semibold uppercase tracking-[0.14em] text-white/65">Harga member</p><h2 className="mt-1 font-heading text-2xl font-bold">Harga tersedia untuk member yang disetujui.</h2><p className="mt-2 max-w-xl text-white/75">Setiap member dapat memiliki Price Group sendiri. Anda tetap dapat melihat katalog dan mengirim inquiry tanpa login.</p></div>
+          <div className="flex flex-wrap gap-3"><Link href="/login" className="rounded-lg bg-ct-orange px-5 py-3 font-semibold text-white hover:bg-ct-orange-dark">Daftar / Masuk</Link><a href={`https://wa.me/${STORE_WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-white/35 px-5 py-3 font-semibold text-white hover:bg-white/10"><MessageCircle size={18} /> Hubungi sales</a></div>
+        </div>
       </section>
     </div>
   );

@@ -10,8 +10,8 @@ export function CartLink({ className }: { className?: string }) {
 
   return (
     <Link
-      href="/keranjang"
-      aria-label="Keranjang"
+      href="/daftar-belanja"
+      aria-label="Daftar Belanja"
       className={cn(
         "relative inline-flex h-10 w-10 items-center justify-center rounded-full text-ct-blue transition-colors hover:bg-ct-teal/10",
         className

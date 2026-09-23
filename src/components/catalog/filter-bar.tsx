@@ -25,11 +25,15 @@ export function FilterBar({
   activeCategory,
   activeAge,
   activeStock,
+  activeQuery,
+  activeSort,
 }: {
   categories: { name: string; slug: string; icon: string | null }[];
   activeCategory?: string;
   activeAge?: string;
   activeStock?: string;
+  activeQuery?: string;
+  activeSort?: string;
 }) {
   const chipClass = (active: boolean) =>
     cn(
@@ -42,7 +46,7 @@ export function FilterBar({
   return (
     <div className="space-y-4">
       <div className="flex gap-2 overflow-x-auto pb-2">
-        <Link href="/katalog" className={chipClass(!activeCategory)}>
+        <Link href={buildHref()} className={chipClass(!activeCategory)}>
           Semua
         </Link>
         {categories.map((category) => {
@@ -50,6 +54,8 @@ export function FilterBar({
           params.set("kategori", category.slug);
           if (activeAge) params.set("usia", activeAge);
           if (activeStock) params.set("stok", activeStock);
+          if (activeQuery) params.set("q", activeQuery);
+          if (activeSort && activeSort !== "terbaru") params.set("sort", activeSort);
 
           return (
             <Link
@@ -65,6 +71,7 @@ export function FilterBar({
       </div>
 
       <form className="flex flex-wrap gap-3" method="get">
+        {activeQuery ? <input type="hidden" name="q" value={activeQuery} /> : null}
         {activeCategory ? (
           <input type="hidden" name="kategori" value={activeCategory} />
         ) : null}
@@ -80,6 +87,16 @@ export function FilterBar({
               {age.label}
             </option>
           ))}
+        </select>
+
+        <select
+          name="sort"
+          defaultValue={activeSort ?? "terbaru"}
+          className="rounded-lg border border-ct-teal/20 bg-white px-3 py-2 text-sm text-foreground"
+        >
+          <option value="terbaru">Terbaru</option>
+          <option value="nama">Nama</option>
+          <option value="stok">Ketersediaan</option>
         </select>
 
         <select
@@ -103,4 +120,14 @@ export function FilterBar({
       </form>
     </div>
   );
+
+  function buildHref() {
+    const params = new URLSearchParams();
+    if (activeQuery) params.set("q", activeQuery);
+    if (activeAge) params.set("usia", activeAge);
+    if (activeStock) params.set("stok", activeStock);
+    if (activeSort && activeSort !== "terbaru") params.set("sort", activeSort);
+    const query = params.toString();
+    return `/katalog${query ? `?${query}` : ""}`;
+  }
 }

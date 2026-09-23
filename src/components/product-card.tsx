@@ -8,20 +8,25 @@ export function ProductCard({
   name,
   categoryName,
   imageUrl,
-  price,
-  discountPrice,
   unit,
   stockStatus,
+  variantCount = 0,
+  packageLevel,
 }: {
   productId: string;
   slug: string;
   name: string;
   categoryName: string;
   imageUrl?: string | null;
-  price?: number | null;
-  discountPrice?: number | null;
   unit?: string | null;
   stockStatus: string;
+  variantCount?: number;
+  packageLevel?: {
+    label: string;
+    contentQuantity: number | null;
+    contentUnit: string | null;
+    minimumOrderQuantity: number | null;
+  };
 }) {
   const outOfStock = stockStatus === "OUT_OF_STOCK";
 
@@ -53,21 +58,42 @@ export function ProductCard({
             {categoryName}
           </span>
           <h3 className="font-heading font-semibold text-foreground">{name}</h3>
+          <div className="mt-1 space-y-0.5 text-xs text-foreground/60">
+            {packageLevel ? (
+              <p>
+                {packageLevel.label}
+                {packageLevel.contentQuantity && packageLevel.contentUnit
+                  ? ` · isi ${packageLevel.contentQuantity} ${packageLevel.contentUnit}`
+                  : ""}
+              </p>
+            ) : unit ? <p>Dijual per {unit}</p> : null}
+            {packageLevel?.minimumOrderQuantity ? (
+              <p>Minimum {packageLevel.minimumOrderQuantity} {packageLevel.label}</p>
+            ) : null}
+            {variantCount > 0 ? <p>{variantCount} pilihan varian</p> : null}
+          </div>
         </div>
       </Link>
 
-      {!outOfStock ? (
+      {!outOfStock && variantCount === 0 ? (
         <div className="px-4 pb-4">
           <ProductCardQuickAdd
             productId={productId}
             slug={slug}
             name={name}
             imageUrl={imageUrl}
-            price={discountPrice ?? price ?? undefined}
             unit={unit}
+            availability="Tersedia"
+            packageSummary={packageLevel ? `${packageLevel.label}${packageLevel.contentQuantity && packageLevel.contentUnit ? `: ${packageLevel.contentQuantity} ${packageLevel.contentUnit}` : ""}${packageLevel.minimumOrderQuantity ? ` (min. ${packageLevel.minimumOrderQuantity} ${packageLevel.label})` : ""}` : undefined}
           />
         </div>
-      ) : null}
+      ) : (
+        <div className="px-4 pb-4">
+          <Link href={`/produk/${slug}`} className="block rounded-full border border-ct-teal/30 px-3 py-2 text-center text-xs font-semibold text-ct-teal-dark">
+            {outOfStock ? "Tanyakan ke Sales" : "Pilih detail produk"}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

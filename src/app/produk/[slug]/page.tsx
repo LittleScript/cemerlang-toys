@@ -8,6 +8,7 @@ import { ProductAccessCta } from "@/components/product/product-access-cta";
 import { FadeIn } from "@/components/motion/fade-in";
 import { cn } from "@/lib/utils";
 import { SITE_NAME } from "@/lib/constants";
+import { resolveMemberPrice } from "@/lib/pricing";
 
 export async function generateMetadata(
   props: PageProps<"/produk/[slug]">
@@ -48,6 +49,7 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
       category: true,
       images: { orderBy: { order: "asc" } },
       variants: true,
+      packageLevels: { orderBy: { sortOrder: "asc" } },
     },
   });
 
@@ -56,6 +58,9 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
   }
 
   const outOfStock = product.stockStatus === "OUT_OF_STOCK";
+  const memberPrice = session?.user?.id
+    ? await resolveMemberPrice({ userId: session.user.id, productId: product.id })
+    : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -90,17 +95,44 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
             slug={product.slug}
             productName={product.name}
             imageUrl={product.images[0]?.url}
-            basePrice={product.price ?? 0}
-            discountPrice={product.discountPrice}
-            unit={product.unit}
+            legacyUnit={product.unit}
+            memberPrice={memberPrice?.amount ?? null}
+            priceBasis={
+              memberPrice?.packageLevelId
+                ? product.packageLevels.find((level) => level.id === memberPrice.packageLevelId)?.label ?? null
+                : product.packageLevels.find((level) => level.isDefaultSellingUnit)?.label ?? product.unit
+            }
+            packageLevels={product.packageLevels.map((level) => ({
+              id: level.id,
+              label: level.label,
+              contentQuantity: level.contentQuantity,
+              contentUnit: level.contentUnit,
+              minimumOrderQuantity: level.minimumOrderQuantity,
+              parentId: level.parentId,
+              isDefaultSellingUnit: level.isDefaultSellingUnit,
+            }))}
             variants={product.variants}
             outOfStock={outOfStock}
-            isMember={isMember}
+            priceState={
+              !session
+                ? "ANONYMOUS"
+                : session.user.status === "APPROVED"
+                  ? memberPrice
+                    ? "VISIBLE"
+                    : session.user.id
+                      ? "UNAVAILABLE"
+                      : "HIDDEN"
+                  : session.user.status === "PENDING"
+                    ? "PENDING"
+                    : session.user.status === "REJECTED"
+                      ? "REJECTED"
+                      : "HIDDEN"
+            }
           />
 
           {!isMember ? <ProductAccessCta loggedIn={!!session} /> : null}
 
-          {isMember && product.description ? (
+          {product.description ? (
             <div>
               <h2 className="font-heading font-semibold text-foreground">Deskripsi</h2>
               <p className="mt-1 whitespace-pre-line text-foreground/70">

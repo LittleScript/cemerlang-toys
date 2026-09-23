@@ -16,12 +16,24 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
   const searchParams = await props.searchParams;
 
   const kategori = firstParam(searchParams.kategori);
+  const q = firstParam(searchParams.q)?.trim() ?? "";
   const usia = firstParam(searchParams.usia);
   const stok = firstParam(searchParams.stok);
+  const sort = firstParam(searchParams.sort) ?? "terbaru";
   const page = Math.max(1, Number(firstParam(searchParams.page)) || 1);
 
   const where: Prisma.ProductWhereInput = {
     published: true,
+    ...(q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" as const } },
+            { aliases: { some: { active: true, value: { contains: q, mode: "insensitive" as const } } } },
+            { category: { name: { contains: q, mode: "insensitive" as const } } },
+            { variants: { some: { sku: { contains: q, mode: "insensitive" as const } } } },
+          ],
+        }
+      : {}),
     ...(kategori ? { category: { slug: kategori } } : {}),
     ...(usia ? { ageRange: usia } : {}),
     ...(stok ? { stockStatus: stok } : {}),
@@ -31,8 +43,22 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
     prisma.category.findMany({ orderBy: { order: "asc" } }),
     prisma.product.findMany({
       where,
-      include: { images: { orderBy: { order: "asc" }, take: 1 }, category: true },
-      orderBy: { createdAt: "desc" },
+      include: {
+        images: { orderBy: { order: "asc" }, take: 1 },
+        category: true,
+        variants: { select: { id: true } },
+        packageLevels: {
+          where: { isDefaultSellingUnit: true },
+          select: { label: true, contentQuantity: true, contentUnit: true, minimumOrderQuantity: true },
+          take: 1,
+        },
+      },
+      orderBy:
+        sort === "nama"
+          ? { name: "asc" }
+          : sort === "stok"
+            ? { stockStatus: "asc" }
+            : { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
@@ -43,9 +69,11 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
 
   function pageHref(targetPage: number) {
     const params = new URLSearchParams();
+    if (q) params.set("q", q);
     if (kategori) params.set("kategori", kategori);
     if (usia) params.set("usia", usia);
     if (stok) params.set("stok", stok);
+    if (sort !== "terbaru") params.set("sort", sort);
     if (targetPage > 1) params.set("page", String(targetPage));
     const qs = params.toString();
     return `/katalog${qs ? `?${qs}` : ""}`;
@@ -56,10 +84,27 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
       <FadeIn className="mb-8">
         <h1 className="font-heading text-3xl font-bold text-ct-blue">Katalog Produk</h1>
         <p className="mt-2 text-foreground/70">
-          Jelajahi koleksi mainan kami. Daftar &amp; masuk untuk melihat harga dan pesan
-          langsung via WhatsApp.
+          Temukan produk grosir, susun Daftar Belanja, lalu kirim pertanyaan atau permintaan
+          melalui WhatsApp.
         </p>
       </FadeIn>
+
+      <form className="mb-6 flex gap-2" method="get">
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="Cari nama produk atau nama umum..."
+          aria-label="Cari produk"
+          className="min-w-0 flex-1 rounded-lg border border-ct-teal/20 bg-white px-4 py-3 focus:border-ct-teal focus:outline-none"
+        />
+        {kategori ? <input type="hidden" name="kategori" value={kategori} /> : null}
+        {usia ? <input type="hidden" name="usia" value={usia} /> : null}
+        {stok ? <input type="hidden" name="stok" value={stok} /> : null}
+        {sort !== "terbaru" ? <input type="hidden" name="sort" value={sort} /> : null}
+        <button className="rounded-lg bg-ct-teal px-5 py-3 font-semibold text-white" type="submit">
+          Cari
+        </button>
+      </form>
 
       <FadeIn delay={0.05} className="mb-8">
         <FilterBar
@@ -67,8 +112,14 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
           activeCategory={kategori}
           activeAge={usia}
           activeStock={stok}
+          activeQuery={q}
+          activeSort={sort}
         />
       </FadeIn>
+
+      <p className="mb-4 text-sm text-foreground/60">
+        {total} {total === 1 ? "produk" : "produk"} ditemukan
+      </p>
 
       {products.length === 0 ? (
         <p className="py-16 text-center text-foreground/60">
@@ -86,6 +137,8 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
                 imageUrl={product.images[0]?.url}
                 unit={product.unit}
                 stockStatus={product.stockStatus}
+                variantCount={product.variants.length}
+                packageLevel={product.packageLevels[0]}
               />
             </FadeIn>
           ))}
