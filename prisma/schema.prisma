@@ -29,6 +29,10 @@ model User {
   whatsapp  String? // normalized to 62xxxxxxxxxxx
   address   String?
   storeName String?
+  cityArea  String?
+
+  priceGroupId String?
+  priceGroup   PriceGroup? @relation(fields: [priceGroupId], references: [id], onDelete: SetNull)
 
   // "USER" | "ADMIN"
   role String @default("USER")
@@ -41,6 +45,7 @@ model User {
 
   @@index([status])
   @@index([whatsapp])
+  @@index([priceGroupId])
 }
 
 model Account {
@@ -121,6 +126,9 @@ model Product {
 
   images   ProductImage[]
   variants ProductVariant[]
+  packageLevels ProductPackageLevel[]
+  aliases ProductAlias[]
+  groupPrices ProductGroupPrice[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -153,6 +161,73 @@ model ProductVariant {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
+}
+
+// --- Wholesale commercial data -------------------------------------------
+
+model PriceGroup {
+  id        String   @id @default(cuid())
+  name      String
+  active    Boolean  @default(true)
+  users     User[]
+  prices    ProductGroupPrice[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active])
+}
+
+model ProductPackageLevel {
+  id                    String   @id @default(cuid())
+  productId             String
+  product               Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  parentId              String?
+  parent                ProductPackageLevel? @relation("PackageHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children              ProductPackageLevel[] @relation("PackageHierarchy")
+  label                 String
+  contentQuantity       Int?
+  contentUnit           String?
+  minimumOrderQuantity  Int?
+  isDefaultSellingUnit  Boolean  @default(false)
+  sortOrder             Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  prices ProductGroupPrice[]
+
+  @@index([productId, sortOrder])
+  @@index([parentId])
+}
+
+model ProductGroupPrice {
+  id              String             @id @default(cuid())
+  productId       String
+  product         Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  priceGroupId    String
+  priceGroup      PriceGroup         @relation(fields: [priceGroupId], references: [id], onDelete: Cascade)
+  packageLevelId  String?
+  packageLevel    ProductPackageLevel? @relation(fields: [packageLevelId], references: [id], onDelete: SetNull)
+  amount          Int
+  active          Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@unique([productId, priceGroupId, packageLevelId])
+  @@index([priceGroupId, active])
+}
+
+model ProductAlias {
+  id              String   @id @default(cuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  value           String
+  normalizedValue String
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([normalizedValue])
+  @@index([productId, active])
 }
 
 // --- Editable homepage content blocks --------------------------------------
