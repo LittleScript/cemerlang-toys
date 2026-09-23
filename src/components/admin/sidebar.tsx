@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Package, Tags, LayoutTemplate,
   Info, Images, ShieldCheck, Users, User,
-  ChevronLeft, ChevronRight, X,
+  ChevronLeft, ChevronRight, X, DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -28,6 +28,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
       { href: "/admin/produk", label: "Produk", icon: Package },
+      { href: "/admin/harga", label: "Price Groups", icon: DollarSign },
       { href: "/admin/kategori", label: "Kategori", icon: Tags },
       { href: "/admin/konten", label: "Konten", icon: LayoutTemplate },
     ],

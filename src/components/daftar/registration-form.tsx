@@ -67,15 +67,14 @@ export function RegistrationForm({ name, email, image }: RegistrationFormProps) 
       </div>
 
       <div>
-        <label htmlFor="address" className="mb-1 block font-medium text-foreground/80">
-          Alamat Lengkap <span className="text-ct-orange">*</span>
+        <label htmlFor="cityArea" className="mb-1 block font-medium text-foreground/80">
+          Kota/Area <span className="text-foreground/40">(opsional)</span>
         </label>
-        <textarea
-          id="address"
-          name="address"
-          required
-          rows={3}
-          placeholder="Jl. ..., Kecamatan, Kota, Provinsi"
+        <input
+          id="cityArea"
+          name="cityArea"
+          type="text"
+          placeholder="Medan, Jakarta, atau area Anda"
           className="w-full rounded-lg border border-ct-teal/20 bg-white px-4 py-2.5 focus:border-ct-teal focus:outline-none"
         />
       </div>

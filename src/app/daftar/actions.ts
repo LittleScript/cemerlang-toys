@@ -20,7 +20,7 @@ export async function submitRegistration(
 
   const name = String(formData.get("name") ?? "").trim();
   const whatsappRaw = String(formData.get("whatsapp") ?? "");
-  const address = String(formData.get("address") ?? "").trim();
+  const cityArea = String(formData.get("cityArea") ?? "").trim();
   const storeName = String(formData.get("storeName") ?? "").trim();
 
   if (!name) {
@@ -34,10 +34,6 @@ export async function submitRegistration(
     };
   }
 
-  if (!address) {
-    return { error: "Alamat lengkap wajib diisi." };
-  }
-
   const whitelisted = await prisma.whitelistWA.findUnique({
     where: { phoneNumber: whatsapp },
   });
@@ -48,7 +44,8 @@ export async function submitRegistration(
     data: {
       name,
       whatsapp,
-      address,
+      address: null,
+      cityArea: cityArea || null,
       storeName: storeName || null,
       status,
     },

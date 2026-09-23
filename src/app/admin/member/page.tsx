@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { PageHeader } from "@/components/admin/ui/page-header";
 import { StatusBadge } from "@/components/admin/ui/status-badge";
+import { assignMemberPriceGroup } from "../harga/actions";
 
 const STATUS_TABS = [
   { value: "PENDING", label: "Pending" },
@@ -38,10 +39,11 @@ export default async function AdminMemberPage(
     ? statusParam
     : "PENDING";
 
-  const members = await prisma.user.findMany({
+  const [members, priceGroups] = await Promise.all([prisma.user.findMany({
     where: { status },
+    include: { priceGroup: true },
     orderBy: { createdAt: "desc" },
-  });
+  }), prisma.priceGroup.findMany({ where: { active: true }, orderBy: { name: "asc" } })]);
 
   return (
     <div>
@@ -109,9 +111,19 @@ export default async function AdminMemberPage(
                       {member.address}
                     </p>
                   ) : null}
+                  {status === "APPROVED" && !member.priceGroup ? (
+                    <p className="mt-2 text-sm font-semibold text-[var(--warning)]">Harga belum aktif: belum ada Price Group.</p>
+                  ) : null}
                 </div>
 
                 <div className="flex gap-2">
+                  <form action={assignMemberPriceGroup.bind(null, member.id)} className="flex items-center gap-2">
+                    <select name="priceGroupId" defaultValue={member.priceGroupId ?? ""} className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 py-2 text-sm">
+                      <option value="">Tanpa Price Group</option>
+                      {priceGroups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}
+                    </select>
+                    <SubmitButton variant="secondary" className="rounded-full px-3 py-2 text-sm">Assign</SubmitButton>
+                  </form>
                   {status === "PENDING" ? (
                     <>
                       <form

@@ -174,6 +174,10 @@ export function ProductForm({ action, categories, submitLabel, defaultValues }: 
   return (
     <form action={formAction} className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
+        <div className="md:col-span-2 rounded-lg border border-ct-orange/25 bg-ct-orange/10 p-3 text-sm text-foreground/70">
+          Harga dan Harga Diskon di bawah adalah field legacy dari data development. Field ini tidak dipakai untuk harga publik maupun harga member baru; gunakan halaman Data Komersial untuk Price Group.
+        </div>
+
         <div>
           <label htmlFor="name" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
             Nama Produk
