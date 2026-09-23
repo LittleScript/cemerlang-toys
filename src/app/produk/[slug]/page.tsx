@@ -79,6 +79,13 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
   const memberPrice = session?.user?.id
     ? await resolveMemberPrice({ userId: session.user.id, productId: product.id })
     : null;
+  const memberPriceGroup = session?.user?.id
+    ? await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { priceGroup: { select: { active: true } } },
+      })
+    : null;
+  const hasActivePriceGroup = memberPriceGroup?.priceGroup?.active === true;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -136,9 +143,9 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
                 : session.user.status === "APPROVED"
                   ? memberPrice
                     ? "VISIBLE"
-                    : session.user.id
-                      ? "UNAVAILABLE"
-                      : "HIDDEN"
+                    : hasActivePriceGroup
+                      ? "HIDDEN"
+                      : "UNAVAILABLE"
                   : session.user.status === "PENDING"
                     ? "PENDING"
                     : session.user.status === "REJECTED"

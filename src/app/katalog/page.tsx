@@ -5,6 +5,8 @@ import { FilterBar } from "@/components/catalog/filter-bar";
 import { FadeIn } from "@/components/motion/fade-in";
 import { cn } from "@/lib/utils";
 import type { Prisma } from "@/generated/prisma/client";
+import { auth } from "@/auth";
+import { resolveMemberPrice } from "@/lib/pricing";
 
 const PAGE_SIZE = 12;
 
@@ -21,6 +23,7 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
   const stok = firstParam(searchParams.stok);
   const sort = firstParam(searchParams.sort) ?? "terbaru";
   const page = Math.max(1, Number(firstParam(searchParams.page)) || 1);
+  const session = await auth();
 
   const where: Prisma.ProductWhereInput = {
     published: true,
@@ -70,6 +73,9 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const memberPrices = session?.user?.id
+    ? await Promise.all(products.map((product) => resolveMemberPrice({ userId: session.user.id, productId: product.id })))
+    : products.map(() => null);
 
   function pageHref(targetPage: number) {
     const params = new URLSearchParams();
@@ -142,6 +148,8 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
                 stockStatus={product.stockStatus}
                 variantCount={product.variants.length}
                 packageLevel={product.packageLevels[0]}
+                price={memberPrices[index]?.amount}
+                priceBasis={product.packageLevels[0]?.label}
               />
             </FadeIn>
           ))}

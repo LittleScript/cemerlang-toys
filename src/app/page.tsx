@@ -4,10 +4,13 @@ import { ArrowRight, MessageCircle, Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/product-card";
 import { SITE_NAME, STORE_WHATSAPP } from "@/lib/constants";
+import { auth } from "@/auth";
+import { resolveMemberPrice } from "@/lib/pricing";
 
 export const revalidate = 60;
 
 export default async function Home() {
+  const session = await auth();
   const [categories, products] = await Promise.all([
     prisma.category.findMany({ orderBy: { order: "asc" }, take: 12 }),
     prisma.product.findMany({
@@ -30,6 +33,9 @@ export default async function Home() {
       },
     }),
   ]);
+  const memberPrices = session?.user?.id
+    ? await Promise.all(products.map((product) => resolveMemberPrice({ userId: session.user.id, productId: product.id })))
+    : products.map(() => null);
 
   return (
     <div>
@@ -78,7 +84,7 @@ export default async function Home() {
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4"><div><p className="text-sm font-semibold text-ct-teal-dark">Update katalog</p><h2 className="mt-1 font-heading text-2xl font-bold text-ct-blue">Produk terbaru</h2></div><Link href="/katalog" className="text-sm font-semibold text-ct-teal-dark">Lihat semua</Link></div>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-            {products.map((product) => <ProductCard key={product.id} productId={product.id} slug={product.slug} name={product.name} categoryName={product.category.name} imageUrl={product.images[0]?.url} stockStatus={product.stockStatus} variantCount={product.variants.length} packageLevel={product.packageLevels[0]} />)}
+            {products.map((product, index) => <ProductCard key={product.id} productId={product.id} slug={product.slug} name={product.name} categoryName={product.category.name} imageUrl={product.images[0]?.url} stockStatus={product.stockStatus} variantCount={product.variants.length} packageLevel={product.packageLevels[0]} price={memberPrices[index]?.amount} priceBasis={product.packageLevels[0]?.label} />)}
           </div>
         </div>
       </section>

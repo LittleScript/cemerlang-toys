@@ -13,6 +13,8 @@ export function ProductCardQuickAdd({
   unit,
   availability,
   packageSummary,
+  price,
+  priceBasis,
 }: {
   productId: string;
   slug: string;
@@ -21,6 +23,8 @@ export function ProductCardQuickAdd({
   unit?: string | null;
   availability?: string;
   packageSummary?: string;
+  price?: number | null;
+  priceBasis?: string | null;
 }) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -28,7 +32,7 @@ export function ProductCardQuickAdd({
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({ productId, slug, name, price: 0, unit: unit ?? undefined, imageUrl, priceVisible: false, availability, packageSummary }, quantity);
+    addItem({ productId, slug, name, price: price ?? 0, unit: unit ?? undefined, imageUrl, priceVisible: price != null, priceBasis: priceBasis ?? undefined, availability, packageSummary }, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   };

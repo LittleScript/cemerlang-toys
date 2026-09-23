@@ -163,6 +163,9 @@ export default function KeranjangPage() {
                     ) : null}
                   </p>
                 ) : null}
+                {item.availability === "Habis — Konfirmasi ke Sales" ? (
+                  <p className="mt-1 text-sm font-semibold text-ct-red">Habis — Konfirmasi ke Sales</p>
+                ) : null}
               </div>
 
               <div className="flex items-center justify-between">

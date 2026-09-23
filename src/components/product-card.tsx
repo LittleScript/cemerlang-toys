@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCardQuickAdd } from "./product-card-quick-add";
+import { formatRupiah } from "@/lib/utils";
 
 export function ProductCard({
   productId,
@@ -11,6 +12,8 @@ export function ProductCard({
   stockStatus,
   variantCount = 0,
   packageLevel,
+  price,
+  priceBasis,
 }: {
   productId: string;
   slug: string;
@@ -25,6 +28,8 @@ export function ProductCard({
     contentUnit: string | null;
     minimumOrderQuantity: number | null;
   };
+  price?: number | null;
+  priceBasis?: string | null;
 }) {
   const outOfStock = stockStatus === "OUT_OF_STOCK";
 
@@ -73,6 +78,11 @@ export function ProductCard({
               <p>Minimum {packageLevel.minimumOrderQuantity} {packageLevel.label}</p>
             ) : null}
             {variantCount > 0 ? <p>{variantCount} pilihan varian</p> : null}
+            {price != null ? (
+              <p className="pt-1 text-sm font-semibold text-ct-blue">
+                {formatRupiah(price)}{priceBasis ? ` / ${priceBasis}` : ""}
+              </p>
+            ) : null}
           </div>
         </div>
       </Link>
@@ -87,6 +97,8 @@ export function ProductCard({
             unit={packageLevel?.label}
             availability="Tersedia"
             packageSummary={packageLevel ? `${packageLevel.label}${packageLevel.contentQuantity && packageLevel.contentUnit ? `: ${packageLevel.contentQuantity} ${packageLevel.contentUnit}` : ""}${packageLevel.minimumOrderQuantity ? ` (min. ${packageLevel.minimumOrderQuantity} ${packageLevel.label})` : ""}` : undefined}
+            price={price}
+            priceBasis={priceBasis}
           />
         </div>
       ) : (
