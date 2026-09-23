@@ -45,7 +45,7 @@ export function FilterBar({
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="hidden gap-2 overflow-x-auto pb-2 lg:flex">
         <Link href={buildHref()} className={chipClass(!activeCategory)}>
           Semua
         </Link>
@@ -72,9 +72,14 @@ export function FilterBar({
 
       <form className="flex flex-wrap gap-3" method="get">
         {activeQuery ? <input type="hidden" name="q" value={activeQuery} /> : null}
-        {activeCategory ? (
-          <input type="hidden" name="kategori" value={activeCategory} />
-        ) : null}
+        <select
+          name="kategori"
+          defaultValue={activeCategory ?? ""}
+          className="w-full rounded-lg border border-ct-teal/20 bg-white px-3 py-2 text-sm text-foreground lg:hidden"
+        >
+          <option value="">Semua Kategori</option>
+          {categories.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}
+        </select>
 
         <select
           name="usia"

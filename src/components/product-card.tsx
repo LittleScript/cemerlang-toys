@@ -8,7 +8,6 @@ export function ProductCard({
   name,
   categoryName,
   imageUrl,
-  unit,
   stockStatus,
   variantCount = 0,
   packageLevel,
@@ -18,7 +17,6 @@ export function ProductCard({
   name: string;
   categoryName: string;
   imageUrl?: string | null;
-  unit?: string | null;
   stockStatus: string;
   variantCount?: number;
   packageLevel?: {
@@ -42,7 +40,11 @@ export function ProductCard({
               sizes="(max-width: 768px) 50vw, 25vw"
               className="object-contain transition-transform duration-300 group-hover:scale-105"
             />
-          ) : null}
+          ) : (
+            <div className="flex h-full items-center justify-center px-6 text-center text-sm text-foreground/45">
+              Gambar belum tersedia
+            </div>
+          )}
 
           <span
             className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm ${
@@ -66,7 +68,7 @@ export function ProductCard({
                   ? ` · isi ${packageLevel.contentQuantity} ${packageLevel.contentUnit}`
                   : ""}
               </p>
-            ) : unit ? <p>Dijual per {unit}</p> : null}
+            ) : null}
             {packageLevel?.minimumOrderQuantity ? (
               <p>Minimum {packageLevel.minimumOrderQuantity} {packageLevel.label}</p>
             ) : null}
@@ -82,7 +84,7 @@ export function ProductCard({
             slug={slug}
             name={name}
             imageUrl={imageUrl}
-            unit={unit}
+            unit={packageLevel?.label}
             availability="Tersedia"
             packageSummary={packageLevel ? `${packageLevel.label}${packageLevel.contentQuantity && packageLevel.contentUnit ? `: ${packageLevel.contentQuantity} ${packageLevel.contentUnit}` : ""}${packageLevel.minimumOrderQuantity ? ` (min. ${packageLevel.minimumOrderQuantity} ${packageLevel.label})` : ""}` : undefined}
           />

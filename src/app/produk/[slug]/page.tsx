@@ -45,11 +45,29 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
 
   const product = await prisma.product.findUnique({
     where: { slug },
-    include: {
-      category: true,
-      images: { orderBy: { order: "asc" } },
-      variants: true,
-      packageLevels: { orderBy: { sortOrder: "asc" } },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      description: true,
+      published: true,
+      stockStatus: true,
+      ageRange: true,
+      category: { select: { name: true } },
+      images: { orderBy: { order: "asc" }, select: { id: true, url: true, alt: true, order: true } },
+      variants: { select: { id: true, name: true, stock: true, image: true } },
+      packageLevels: {
+        orderBy: { sortOrder: "asc" },
+        select: {
+          id: true,
+          label: true,
+          contentQuantity: true,
+          contentUnit: true,
+          minimumOrderQuantity: true,
+          parentId: true,
+          isDefaultSellingUnit: true,
+        },
+      },
     },
   });
 
@@ -95,12 +113,11 @@ export default async function ProductPage(props: PageProps<"/produk/[slug]">) {
             slug={product.slug}
             productName={product.name}
             imageUrl={product.images[0]?.url}
-            legacyUnit={product.unit}
             memberPrice={memberPrice?.amount ?? null}
             priceBasis={
               memberPrice?.packageLevelId
                 ? product.packageLevels.find((level) => level.id === memberPrice.packageLevelId)?.label ?? null
-                : product.packageLevels.find((level) => level.isDefaultSellingUnit)?.label ?? product.unit
+                : product.packageLevels.find((level) => level.isDefaultSellingUnit)?.label ?? null
             }
             packageLevels={product.packageLevels.map((level) => ({
               id: level.id,

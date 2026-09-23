@@ -14,9 +14,13 @@ export default async function Home() {
       where: { published: true },
       orderBy: { createdAt: "desc" },
       take: 8,
-      include: {
-        images: { orderBy: { order: "asc" }, take: 1 },
-        category: true,
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        stockStatus: true,
+        category: { select: { name: true } },
+        images: { orderBy: { order: "asc" }, take: 1, select: { url: true, alt: true } },
         variants: { select: { id: true } },
         packageLevels: {
           where: { isDefaultSellingUnit: true },
@@ -30,7 +34,7 @@ export default async function Home() {
   return (
     <div>
       <section className="border-b border-ct-teal/10 bg-ct-cream">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.15fr_0.85fr] md:items-center md:py-16 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-16 lg:px-8">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-ct-teal-dark">Cemerlang Toys Medan</p>
             <h1 className="mt-3 max-w-2xl font-heading text-4xl font-bold leading-tight text-ct-blue sm:text-5xl">
@@ -52,7 +56,7 @@ export default async function Home() {
               <Link href="#cara-order" className="font-semibold text-foreground/65 hover:text-foreground">Cara order</Link>
             </div>
           </div>
-          <div className="relative mx-auto w-full max-w-sm md:justify-self-end">
+          <div className="relative mx-auto w-full max-w-sm lg:justify-self-end">
             <div className="relative aspect-square overflow-hidden rounded-2xl bg-white/70 p-5">
               <Image src="/logo-cemerlang-toys.png" alt={SITE_NAME} fill priority sizes="(max-width: 768px) 90vw, 360px" className="object-contain p-5" />
             </div>
@@ -74,7 +78,7 @@ export default async function Home() {
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4"><div><p className="text-sm font-semibold text-ct-teal-dark">Update katalog</p><h2 className="mt-1 font-heading text-2xl font-bold text-ct-blue">Produk terbaru</h2></div><Link href="/katalog" className="text-sm font-semibold text-ct-teal-dark">Lihat semua</Link></div>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-            {products.map((product) => <ProductCard key={product.id} productId={product.id} slug={product.slug} name={product.name} categoryName={product.category.name} imageUrl={product.images[0]?.url} unit={product.unit} stockStatus={product.stockStatus} variantCount={product.variants.length} packageLevel={product.packageLevels[0]} />)}
+            {products.map((product) => <ProductCard key={product.id} productId={product.id} slug={product.slug} name={product.name} categoryName={product.category.name} imageUrl={product.images[0]?.url} stockStatus={product.stockStatus} variantCount={product.variants.length} packageLevel={product.packageLevels[0]} />)}
           </div>
         </div>
       </section>

@@ -5,7 +5,7 @@ import { Minus, Plus, ShoppingCart, Check } from "lucide-react";
 import { cn, formatRupiah } from "@/lib/utils";
 import { useCart } from "@/lib/cart-context";
 
-type Variant = { id: string; name: string; price: number | null; stock: number };
+type Variant = { id: string; name: string; stock: number; image?: string | null };
 type PackageLevel = {
   id: string;
   label: string;
@@ -21,7 +21,6 @@ export function ProductOrderPanel({
   slug,
   productName,
   imageUrl,
-  legacyUnit,
   memberPrice,
   priceBasis,
   packageLevels,
@@ -33,7 +32,6 @@ export function ProductOrderPanel({
   slug: string;
   productName: string;
   imageUrl?: string | null;
-  legacyUnit?: string | null;
   memberPrice?: number | null;
   priceBasis?: string | null;
   packageLevels: PackageLevel[];
@@ -65,7 +63,7 @@ export function ProductOrderPanel({
         variantId: selectedVariant?.id,
         variantName: selectedVariant?.name,
         price,
-        unit: packageLevels.find((level) => level.isDefaultSellingUnit)?.label ?? legacyUnit ?? undefined,
+        unit: packageLevels.find((level) => level.isDefaultSellingUnit)?.label,
         imageUrl,
         maxQuantity: inquiryOnly ? undefined : maxQuantity,
         priceVisible: priceState === "VISIBLE",

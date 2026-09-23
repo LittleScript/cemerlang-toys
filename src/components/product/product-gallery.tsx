@@ -22,7 +22,11 @@ export function ProductGallery({ images, alt }: { images: GalleryImage[]; alt: s
             className="object-contain"
             priority
           />
-        ) : null}
+        ) : (
+          <div className="flex h-full items-center justify-center px-6 text-center text-sm text-foreground/45">
+            Gambar produk belum tersedia
+          </div>
+        )}
       </div>
 
       {images.length > 1 ? (

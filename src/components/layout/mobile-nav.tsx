@@ -17,7 +17,7 @@ export function MobileNav({ authSlot }: MobileNavProps) {
     <>
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded-md p-2 text-ct-blue md:hidden"
+        className="inline-flex items-center justify-center rounded-md p-2 text-ct-blue lg:hidden"
         aria-label="Buka menu"
         onClick={() => setOpen((v) => !v)}
       >
@@ -26,7 +26,7 @@ export function MobileNav({ authSlot }: MobileNavProps) {
 
       <div
         className={cn(
-          "absolute inset-x-0 top-full overflow-hidden border-t border-ct-teal/10 bg-ct-cream/95 backdrop-blur-md transition-[max-height] duration-300 md:hidden",
+          "absolute inset-x-0 top-full overflow-hidden border-t border-ct-teal/10 bg-ct-cream/95 backdrop-blur-md transition-[max-height] duration-300 lg:hidden",
           open ? "max-h-[calc(100vh-4rem)]" : "max-h-0 border-t-0"
         )}
       >

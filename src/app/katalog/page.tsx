@@ -43,9 +43,13 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
     prisma.category.findMany({ orderBy: { order: "asc" } }),
     prisma.product.findMany({
       where,
-      include: {
-        images: { orderBy: { order: "asc" }, take: 1 },
-        category: true,
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        stockStatus: true,
+        category: { select: { name: true } },
+        images: { orderBy: { order: "asc" }, take: 1, select: { url: true, alt: true } },
         variants: { select: { id: true } },
         packageLevels: {
           where: { isDefaultSellingUnit: true },
@@ -135,7 +139,6 @@ export default async function KatalogPage(props: PageProps<"/katalog">) {
                 name={product.name}
                 categoryName={product.category.name}
                 imageUrl={product.images[0]?.url}
-                unit={product.unit}
                 stockStatus={product.stockStatus}
                 variantCount={product.variants.length}
                 packageLevel={product.packageLevels[0]}
