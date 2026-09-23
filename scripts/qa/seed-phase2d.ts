@@ -86,7 +86,7 @@ async function main() {
     { id: "qa-admin", email: "admin@qa.invalid", name: "QA Admin", status: "APPROVED", role: "ADMIN" },
   ] });
 
-  console.log(`QA fixtures seeded in ${db}: ${products.length} products, ${groups.length} groups, 6 users.`);
+  console.log(`QA fixtures seeded in ${db}: ${products.length} products, ${groups.length} groups, 7 users.`);
 }
 
 main().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => prisma.$disconnect());
