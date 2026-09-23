@@ -4,6 +4,9 @@ import { auth, signIn } from "@/auth";
 import { SITE_NAME } from "@/lib/constants";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { isQaAuthEnabled } from "@/lib/qa-auth";
+import { prisma } from "@/lib/prisma";
+import { qaSignIn } from "./qa-actions";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -15,6 +18,14 @@ export default async function LoginPage() {
     if (user.status === "REJECTED") redirect("/akun/ditolak");
     redirect("/akun/menunggu-verifikasi");
   }
+
+  const qaUsers = isQaAuthEnabled()
+    ? await prisma.user.findMany({
+        where: { id: { startsWith: "qa-" } },
+        select: { id: true, name: true, status: true, role: true, priceGroup: { select: { name: true, active: true } } },
+        orderBy: { id: "asc" },
+      })
+    : [];
 
   return (
     <div className="mx-auto flex max-w-md flex-col items-center px-4 py-16 text-center sm:px-6 lg:px-8">
@@ -45,6 +56,25 @@ export default async function LoginPage() {
           Masuk dengan Google
         </SubmitButton>
       </form>
+      {qaUsers.length > 0 ? (
+        <section className="mt-8 w-full border-t border-[var(--border)] pt-6 text-left">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-foreground/50">QA browser session</p>
+          <p className="mt-1 text-xs text-foreground/60">Hanya tersedia pada database QA terisolasi.</p>
+          <div className="mt-3 grid gap-2">
+            {qaUsers.map((user) => (
+              <form action={qaSignIn} key={user.id}>
+                <input type="hidden" name="userId" value={user.id} />
+                <button type="submit" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-left text-sm hover:border-ct-teal">
+                  <span className="font-semibold">{user.name ?? user.id}</span>
+                  <span className="ml-2 text-xs text-foreground/60">
+                    {user.role} · {user.status} · {user.priceGroup?.name ?? "tanpa price group"}
+                  </span>
+                </button>
+              </form>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }
