@@ -8,7 +8,17 @@ export function buildCartOrderMessage({
   showPrices,
 }: {
   customerName: string;
-  items: { name: string; variantName?: string; price: number; unit?: string; quantity: number }[];
+  items: {
+    name: string;
+    variantName?: string;
+    price: number;
+    unit?: string;
+    quantity: number;
+    priceVisible?: boolean;
+    priceBasis?: string;
+    availability?: string;
+    packageSummary?: string;
+  }[];
   total: number;
   showPrices: boolean;
 }) {
@@ -17,7 +27,9 @@ export function buildCartOrderMessage({
   items.forEach((item, index) => {
     const label = item.variantName ? `${item.name} (${item.variantName})` : item.name;
     lines.push(`${index + 1}. ${label}`);
-    if (showPrices) {
+    if (item.packageSummary) lines.push(`   Kemasan: ${item.packageSummary}`);
+    if (item.availability) lines.push(`   Status: ${item.availability}`);
+    if (showPrices && item.priceVisible) {
       const unitLabel = item.unit ? `/${item.unit}` : "";
       lines.push(
         `   ${item.quantity} x ${formatRupiah(item.price)}${unitLabel} = ${formatRupiah(item.price * item.quantity)}`
@@ -31,7 +43,7 @@ export function buildCartOrderMessage({
   if (showPrices) {
     lines.push(`Total: ${formatRupiah(total)}`);
   } else {
-    lines.push("Mohon info harga & totalnya ya. Terima kasih!");
+  lines.push("Harga dan ketersediaan akan dikonfirmasi oleh tim sales. Terima kasih!");
   }
 
   return lines.join("\n");

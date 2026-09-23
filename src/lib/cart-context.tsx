@@ -14,6 +14,10 @@ export interface CartItem {
   imageUrl?: string | null;
   quantity: number;
   maxQuantity?: number;
+  priceVisible?: boolean;
+  priceBasis?: string;
+  availability?: string;
+  packageSummary?: string;
 }
 
 interface CartContextValue {
@@ -102,7 +106,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => setItems([]);
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const totalPrice = items.reduce(
+    (sum, i) => sum + (i.priceVisible ? i.price * i.quantity : 0),
+    0
+  );
 
   return (
     <CartContext.Provider
