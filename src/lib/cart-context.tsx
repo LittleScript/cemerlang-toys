@@ -26,6 +26,7 @@ interface CartContextValue {
   totalPrice: number;
   addItem: (item: Omit<CartItem, "key" | "quantity">, quantity: number) => void;
   updateQuantity: (key: string, quantity: number) => void;
+  updateItemSnapshot: (key: string, snapshot: Partial<CartItem>) => void;
   removeItem: (key: string) => void;
   clearCart: () => void;
 }
@@ -99,6 +100,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const updateItemSnapshot: CartContextValue["updateItemSnapshot"] = (key, snapshot) => {
+    setItems((prev) => prev.map((item) => (item.key === key ? { ...item, ...snapshot } : item)));
+  };
+
   const removeItem: CartContextValue["removeItem"] = (key) => {
     setItems((prev) => prev.filter((i) => i.key !== key));
   };
@@ -113,7 +118,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, totalItems, totalPrice, addItem, updateQuantity, removeItem, clearCart }}
+      value={{ items, totalItems, totalPrice, addItem, updateQuantity, updateItemSnapshot, removeItem, clearCart }}
     >
       {children}
     </CartContext.Provider>

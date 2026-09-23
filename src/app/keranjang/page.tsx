@@ -11,11 +11,19 @@ import { cn, formatRupiah } from "@/lib/utils";
 
 type ValidationResult = {
   changes: { key: string; message: string }[];
-  items: { key: string; price?: number; priceVisible: boolean; priceBasis?: string | null }[];
+  items: {
+    key: string;
+    price?: number;
+    priceVisible: boolean;
+    priceBasis?: string | null;
+    unit?: string;
+    packageSummary?: string;
+    availability?: string;
+  }[];
 };
 
 export default function KeranjangPage() {
-  const { items, updateQuantity, removeItem, clearCart } = useCart();
+  const { items, updateQuantity, updateItemSnapshot, removeItem, clearCart } = useCart();
   const { data: session } = useSession();
   const [isValidating, setIsValidating] = useState(false);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
@@ -47,6 +55,16 @@ export default function KeranjangPage() {
       if (!response.ok) throw new Error("validation failed");
       const result = (await response.json()) as ValidationResult;
       if (result.changes.length > 0) {
+        result.items.forEach((current) => {
+          updateItemSnapshot(current.key, {
+            ...(current.priceVisible ? { price: current.price ?? 0 } : { price: 0 }),
+            priceVisible: current.priceVisible,
+            priceBasis: current.priceBasis ?? undefined,
+            unit: current.unit,
+            packageSummary: current.packageSummary,
+            availability: current.availability,
+          });
+        });
         setValidation(result);
         return;
       }

@@ -32,7 +32,15 @@ export async function POST(request: Request) {
 
   const session = await auth();
   const changes: { key: string; message: string }[] = [];
-  const result: { key: string; price?: number; priceVisible: boolean; priceBasis?: string | null }[] = [];
+  const result: {
+    key: string;
+    price?: number;
+    priceVisible: boolean;
+    priceBasis?: string | null;
+    unit?: string;
+    packageSummary?: string;
+    availability?: string;
+  }[] = [];
 
   for (const item of body.items) {
     if (!item.productId || !item.key) {
@@ -50,9 +58,8 @@ export async function POST(request: Request) {
         unit: true,
         variants: { select: { id: true, name: true, stock: true } },
         packageLevels: {
-          where: { isDefaultSellingUnit: true },
-          select: { label: true, contentQuantity: true, contentUnit: true, minimumOrderQuantity: true },
-          take: 1,
+          select: { label: true, contentQuantity: true, contentUnit: true, minimumOrderQuantity: true, isDefaultSellingUnit: true },
+          orderBy: { sortOrder: "asc" },
         },
       },
     });
@@ -70,7 +77,7 @@ export async function POST(request: Request) {
 
     const unavailable = product.stockStatus === "OUT_OF_STOCK" || Boolean(variant && variant.stock <= 0);
     const availability = unavailable ? "Habis — Konfirmasi ke Sales" : "Tersedia";
-    const unit = product.packageLevels[0]?.label ?? product.unit ?? undefined;
+    const unit = product.packageLevels.find((level) => level.isDefaultSellingUnit)?.label ?? product.unit ?? undefined;
     const currentPackageSummary = packageSummary(product.packageLevels);
     if (item.unit !== unit || item.packageSummary !== currentPackageSummary || item.availability !== availability) {
       changes.push({ key: item.key, message: `${product.name}: unit, kemasan, atau status ketersediaan berubah.` });
@@ -87,6 +94,9 @@ export async function POST(request: Request) {
     result.push({
       key: item.key,
       priceVisible,
+      unit,
+      packageSummary: currentPackageSummary || undefined,
+      availability,
       ...(priceVisible ? { price: memberPrice.amount, priceBasis: unit ?? null } : {}),
     });
   }
