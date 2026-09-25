@@ -1,13 +1,29 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MessageCircle, Search } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  Package,
+  MessageCircle,
+  Search,
+  Truck,
+  Users,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { CategoryIcon } from "@/components/category-icon";
 import { ProductCard } from "@/components/product-card";
-import { SITE_NAME, STORE_WHATSAPP } from "@/lib/constants";
+import { STORE_WHATSAPP } from "@/lib/constants";
 import { auth } from "@/auth";
 import { resolveMemberPrice } from "@/lib/pricing";
 
 export const revalidate = 60;
+
+const trustItems = [
+  { value: "1000+ Produk", label: "Pilihan mainan lengkap", icon: Package },
+  { value: "Seluruh Indonesia", label: "Melayani reseller di seluruh Indonesia", icon: Truck },
+  { value: "Ribuan Reseller", label: "Telah mempercayai Cemerlang Toys", icon: Users },
+  { value: "Sejak 2002", label: "Lebih dari 20 tahun bersama pelanggan", icon: CalendarDays },
+] as const;
 
 export default async function Home() {
   const session = await auth();
@@ -33,73 +49,122 @@ export default async function Home() {
       },
     }),
   ]);
+
   const memberPrices = session?.user?.id
     ? await Promise.all(products.map((product) => resolveMemberPrice({ userId: session.user.id, productId: product.id })))
     : products.map(() => null);
-
   return (
-    <div>
-      <section className="border-b border-ct-teal/10 bg-ct-cream">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-16 lg:px-8">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-ct-teal-dark">Cemerlang Toys Medan</p>
-            <h1 className="mt-3 max-w-2xl font-heading text-4xl font-bold leading-tight text-ct-blue sm:text-5xl">
-              Cari stok mainan untuk toko dan reseller.
+    <div className="w-full max-w-full min-w-0 overflow-x-hidden bg-white">
+      <section className="w-full max-w-full overflow-hidden border-b border-slate-200 bg-[#f5f8ff]">
+        <div className="relative mx-auto flex w-full min-w-0 max-w-7xl flex-col px-4 py-8 sm:px-6 sm:py-10 lg:min-h-[500px] lg:justify-center lg:px-8 lg:py-12">
+          <div className="relative z-10 w-full min-w-0 max-w-[calc(100vw-2rem)] pr-4 sm:max-w-none sm:pr-0 lg:max-w-[34%]">
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-ct-blue">Supplier mainan anak</p>
+            <h1 className="mt-3 w-full max-w-xl break-words font-heading text-[clamp(1.75rem,5vw,4rem)] font-extrabold leading-[1.04] tracking-tight text-[#102b55] lg:text-[3.25rem]">
+              Supplier Mainan Anak
+              <br />
+              Terpercaya Sejak 2002
             </h1>
-            <p className="mt-4 max-w-xl text-lg leading-relaxed text-foreground/70">
-              Jelajahi katalog grosir, susun Daftar Belanja, lalu kirim kebutuhan Anda ke CT Rangers melalui WhatsApp.
+            <p className="mt-5 w-full max-w-[20rem] break-words [overflow-wrap:anywhere] text-base leading-7 text-slate-600 sm:max-w-xl sm:text-lg">
+              Lebih dari 1000 produk dan ribuan pilihan mainan untuk toko, reseller, sekolah, dan berbagai kebutuhan usaha di seluruh Indonesia.
             </p>
-            <form action="/katalog" className="mt-7 flex max-w-xl gap-2">
-              <label htmlFor="home-search" className="sr-only">Cari produk</label>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/katalog" className="inline-flex items-center gap-2 rounded-lg bg-ct-blue px-5 py-3 font-bold text-white shadow-sm transition hover:bg-[#173d78]">
+                Lihat Katalog <ArrowRight size={17} />
+              </Link>
+              <Link href="/tentang" className="inline-flex items-center gap-2 rounded-lg border border-ct-blue/25 bg-white px-5 py-3 font-bold text-ct-blue transition hover:bg-ct-blue/5">
+                Tentang Kami
+              </Link>
+            </div>
+            <form action="/katalog" className="mt-7 flex w-full min-w-0 max-w-[calc(100vw-2rem)] flex-col gap-2 sm:max-w-xl sm:flex-row">
+              <label htmlFor="home-search" className="sr-only">Cari mainan</label>
               <div className="relative min-w-0 flex-1">
-                <Search size={19} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-foreground/45" />
-                <input id="home-search" name="q" placeholder="Cari nama produk atau nama yang biasa dipakai..." className="w-full rounded-lg border border-ct-teal/20 bg-white py-3 pl-11 pr-3 outline-none focus:border-ct-teal" />
+                <Search size={19} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input id="home-search" name="q" placeholder="Cari mainan, kategori, atau nama yang biasa dipakai..." className="w-full rounded-lg border border-slate-200 bg-white py-3 pl-11 pr-3 text-sm outline-none transition focus:border-ct-blue focus:ring-2 focus:ring-ct-blue/15" />
               </div>
-              <button type="submit" className="rounded-lg bg-ct-teal px-5 py-3 font-semibold text-white hover:bg-ct-teal-dark">Cari</button>
+              <button type="submit" className="rounded-lg bg-ct-blue px-5 py-3 font-bold text-white transition hover:bg-[#173d78]">Cari</button>
             </form>
-            <div className="mt-4 flex flex-wrap gap-3 text-sm">
-              <Link href="/katalog" className="inline-flex items-center gap-2 font-semibold text-ct-teal-dark">Lihat seluruh katalog <ArrowRight size={16} /></Link>
-              <Link href="#cara-order" className="font-semibold text-foreground/65 hover:text-foreground">Cara order</Link>
+          </div>
+
+          <div className="relative mt-8 aspect-[16/9] w-full max-w-[calc(100vw-2rem)] overflow-hidden sm:mt-10 sm:max-w-full lg:absolute lg:inset-0 lg:mt-0 lg:aspect-auto lg:overflow-visible">
+            <Image
+              src="/images/hero-cemerlang-toys.webp"
+              alt="Kumpulan produk mainan grosir Cemerlang Toys"
+              fill
+              sizes="(max-width: 1023px) 100vw, 100vw"
+              className="object-cover object-center lg:object-[center_bottom]"
+            />
+            <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(245,248,255,0.98)_0%,rgba(245,248,255,0.9)_23%,rgba(245,248,255,0.48)_35%,rgba(245,248,255,0)_53%)] lg:block" aria-hidden="true" />
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto grid w-full min-w-0 max-w-7xl grid-cols-1 divide-y divide-slate-200 sm:grid-cols-4 sm:divide-x sm:divide-y-0 lg:px-8">
+          {trustItems.map(({ value, label, icon: Icon }) => (
+            <div key={value} className="flex min-w-0 items-center gap-3 px-4 py-5 sm:px-5">
+              <Icon size={25} strokeWidth={2.2} className="shrink-0 text-ct-blue" aria-hidden="true" />
+              <div className="min-w-0">
+                <p className="truncate font-heading text-sm font-extrabold text-[#102b55] sm:text-base">{value}</p>
+                <p className="mt-0.5 text-xs leading-4 text-slate-500">{label}</p>
+              </div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+        <div className="flex min-w-0 items-end justify-between gap-4">
+          <h2 className="font-heading text-2xl font-extrabold text-[#102b55] sm:text-3xl">Kategori Pilihan</h2>
+          <Link href="/katalog" className="max-w-[42%] shrink-0 truncate text-right text-sm font-bold text-ct-blue hover:underline sm:max-w-none">Lihat Semua Kategori <ArrowRight size={15} className="inline" /></Link>
+        </div>
+        <div className="mt-5 flex gap-3 overflow-x-auto pb-2">
+          {categories.map((category) => (
+            <Link key={category.id} href={`/katalog?kategori=${category.slug}`} className="group flex w-28 shrink-0 flex-col items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-center transition hover:-translate-y-0.5 hover:border-ct-blue/30 hover:shadow-sm sm:w-32">
+              <span className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#eef4ff] text-ct-blue transition group-hover:bg-ct-blue group-hover:text-white">
+                <CategoryIcon name={category.icon} size={29} />
+              </span>
+              <span className="line-clamp-2 text-xs font-bold leading-4 text-slate-700">{category.name}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-slate-200 bg-[#fbfcff]">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+          <div className="flex min-w-0 items-end justify-between gap-4">
+            <h2 className="font-heading text-2xl font-extrabold text-[#102b55] sm:text-3xl">Produk Terbaru</h2>
+            <Link href="/katalog" className="max-w-[42%] shrink-0 truncate text-right text-sm font-bold text-ct-blue hover:underline sm:max-w-none">Lihat Semua Produk <ArrowRight size={15} className="inline" /></Link>
           </div>
-          <div className="relative mx-auto w-full max-w-sm lg:justify-self-end">
-            <div className="relative aspect-square overflow-hidden rounded-2xl bg-white/70 p-5">
-              <Image src="/logo-cemerlang-toys.png" alt={SITE_NAME} fill priority sizes="(max-width: 768px) 90vw, 360px" className="object-contain p-5" />
-            </div>
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+            {products.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                productId={product.id}
+                slug={product.slug}
+                name={product.name}
+                categoryName={product.category.name}
+                imageUrl={product.images[0]?.url}
+                stockStatus={product.stockStatus}
+                variantCount={product.variants.length}
+                packageLevel={product.packageLevels[0]}
+                price={memberPrices[index]?.amount}
+                priceBasis={product.packageLevels[0]?.label}
+              />
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between gap-4">
-          <div><p className="text-sm font-semibold text-ct-teal-dark">Mulai dari kebutuhan Anda</p><h2 className="mt-1 font-heading text-2xl font-bold text-ct-blue">Kategori produk</h2></div>
-          <Link href="/katalog" className="text-sm font-semibold text-ct-teal-dark">Semua kategori</Link>
-        </div>
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
-          {categories.map((category) => <Link key={category.id} href={`/katalog?kategori=${category.slug}`} className="shrink-0 border-b-2 border-ct-teal/20 px-1 py-2 text-sm font-semibold text-foreground/75 hover:border-ct-teal hover:text-ct-teal-dark">{category.name}</Link>)}
-        </div>
-      </section>
-
-      <section className="border-y border-ct-teal/10 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between gap-4"><div><p className="text-sm font-semibold text-ct-teal-dark">Update katalog</p><h2 className="mt-1 font-heading text-2xl font-bold text-ct-blue">Produk terbaru</h2></div><Link href="/katalog" className="text-sm font-semibold text-ct-teal-dark">Lihat semua</Link></div>
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-            {products.map((product, index) => <ProductCard key={product.id} productId={product.id} slug={product.slug} name={product.name} categoryName={product.category.name} imageUrl={product.images[0]?.url} stockStatus={product.stockStatus} variantCount={product.variants.length} packageLevel={product.packageLevels[0]} price={memberPrices[index]?.amount} priceBasis={product.packageLevels[0]?.label} />)}
+      <section className="border-b border-slate-200 bg-white px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 rounded-xl bg-[#edf5ff] px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <div>
+            <p className="font-heading text-xl font-extrabold text-[#102b55]">Jadi Member Sekarang</p>
+            <p className="mt-1 text-sm text-slate-600">Dapatkan akses harga khusus setelah akun disetujui.</p>
           </div>
-        </div>
-      </section>
-
-      <section id="cara-order" className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[0.8fr_1.2fr] lg:px-8">
-        <div><p className="text-sm font-semibold text-ct-teal-dark">Alur pembelian</p><h2 className="mt-1 font-heading text-2xl font-bold text-ct-blue">Cara order tetap manusiawi.</h2><p className="mt-3 text-foreground/70">Website membantu menyiapkan kebutuhan Anda. CT Rangers mengonfirmasi harga, ketersediaan, dan detail akhir melalui WhatsApp.</p></div>
-        <ol className="grid gap-3 sm:grid-cols-2">
-          {["Pilih produk dari katalog", "Tambahkan ke Daftar Belanja", "Periksa unit, kemasan, dan jumlah", "Kirim ke WhatsApp untuk dikonfirmasi"].map((step, index) => <li key={step} className="flex gap-3 border-l-2 border-ct-orange px-4 py-3"><span className="font-heading font-bold text-ct-orange-dark">0{index + 1}</span><span className="font-medium text-foreground/80">{step}</span></li>)}
-        </ol>
-      </section>
-
-      <section className="bg-ct-blue text-white">
-        <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
-          <div><p className="text-sm font-semibold uppercase tracking-[0.14em] text-white/65">Harga member</p><h2 className="mt-1 font-heading text-2xl font-bold">Harga tersedia untuk member yang disetujui.</h2><p className="mt-2 max-w-xl text-white/75">Setiap member dapat memiliki Price Group sendiri. Anda tetap dapat melihat katalog dan mengirim inquiry tanpa login.</p></div>
-          <div className="flex flex-wrap gap-3"><Link href="/login" className="rounded-lg bg-ct-orange px-5 py-3 font-semibold text-white hover:bg-ct-orange-dark">Daftar / Masuk</Link><a href={`https://wa.me/${STORE_WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-white/35 px-5 py-3 font-semibold text-white hover:bg-white/10"><MessageCircle size={18} /> Hubungi sales</a></div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/login" className="rounded-lg bg-ct-blue px-5 py-3 text-sm font-bold text-white hover:bg-[#173d78]">Daftar Sekarang</Link>
+            <a href={`https://wa.me/${STORE_WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-ct-green/30 bg-white px-5 py-3 text-sm font-bold text-ct-green hover:bg-ct-green/5"><MessageCircle size={17} /> Hubungi Kami</a>
+          </div>
         </div>
       </section>
     </div>

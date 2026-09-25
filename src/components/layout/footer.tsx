@@ -8,7 +8,7 @@ export async function Footer() {
   const waLink = `https://wa.me/${STORE_WHATSAPP}`;
 
   return (
-    <footer className="border-t border-ct-teal/10 bg-white">
+    <footer className="border-t border-white/10 bg-[#102b55] text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 md:grid-cols-3 lg:px-8">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
@@ -25,30 +25,30 @@ export async function Footer() {
               <span className="text-ct-blue">Medan</span>
             </span>
           </div>
-          <p className="text-sm text-foreground/70">Katalog grosir mainan untuk kebutuhan toko dan reseller.</p>
-          <p className="text-sm text-foreground/70">Daftar Belanja diteruskan ke WhatsApp untuk konfirmasi sales.</p>
+          <p className="text-sm text-white/70">Katalog grosir mainan untuk kebutuhan toko dan reseller.</p>
+          <p className="text-sm text-white/70">Daftar Belanja diteruskan ke WhatsApp untuk konfirmasi sales.</p>
         </div>
 
         <div className="space-y-3">
-          <h3 className="font-heading font-semibold text-ct-blue">Navigasi</h3>
-          <ul className="space-y-2 text-sm text-foreground/70">
+          <h3 className="font-heading font-semibold text-white">Navigasi</h3>
+          <ul className="space-y-2 text-sm text-white/70">
             <li>
-              <Link href="/" className="hover:text-ct-teal-dark">
+              <Link href="/" className="hover:text-ct-teal">
                 Beranda
               </Link>
             </li>
             <li>
-              <Link href="/katalog" className="hover:text-ct-teal-dark">
+              <Link href="/katalog" className="hover:text-ct-teal">
                 Katalog
               </Link>
             </li>
             <li>
-              <Link href="/tentang" className="hover:text-ct-teal-dark">
+              <Link href="/tentang" className="hover:text-ct-teal">
                 Tentang Kami
               </Link>
             </li>
             <li>
-              <Link href="/login" className="hover:text-ct-teal-dark">
+              <Link href="/login" className="hover:text-ct-teal">
                 Daftar / Masuk
               </Link>
             </li>
@@ -56,21 +56,21 @@ export async function Footer() {
         </div>
 
         <div className="space-y-3">
-          <h3 className="font-heading font-semibold text-ct-blue">Kontak CT Rangers</h3>
-          <ul className="space-y-2 text-sm text-foreground/70">
+          <h3 className="font-heading font-semibold text-white">Kontak CT Rangers</h3>
+          <ul className="space-y-2 text-sm text-white/70">
             <li className="flex items-center gap-2">
               <Phone size={16} className="text-ct-teal" />
               <span>0812-6019-2002</span>
             </li>
             <li className="flex items-center gap-2">
               <MessageCircle size={16} className="text-ct-teal" />
-              <a href={waLink} target="_blank" rel="noopener noreferrer" className="hover:text-ct-teal-dark">
+              <a href={waLink} target="_blank" rel="noopener noreferrer" className="hover:text-ct-teal">
                 Chat via WhatsApp
               </a>
             </li>
             <li className="flex items-center gap-2">
               <MapPin size={16} className="text-ct-teal" />
-              <a href={STORE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="hover:text-ct-teal-dark">
+              <a href={STORE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="hover:text-ct-teal">
                 Lihat Lokasi Toko
               </a>
             </li>
@@ -78,15 +78,15 @@ export async function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-ct-teal/10 py-4 text-center text-sm text-foreground/60">
+      <div className="border-t border-white/10 py-4 text-center text-sm text-white/60">
         <p>
           &copy; {year} {SITE_NAME}. Semua hak cipta dilindungi.
         </p>
         <div className="mt-2 flex items-center justify-center gap-4">
-          <Link href="/privasi" className="hover:text-ct-teal-dark">
+          <Link href="/privasi" className="hover:text-ct-teal">
             Kebijakan Privasi
           </Link>
-          <Link href="/syarat-ketentuan" className="hover:text-ct-teal-dark">
+          <Link href="/syarat-ketentuan" className="hover:text-ct-teal">
             Syarat &amp; Ketentuan
           </Link>
         </div>
